@@ -8,6 +8,10 @@ import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 
 public class ClanCreateSubCommand implements SubCommand {
 
+    private final ConfigManager config = new ConfigManager();
+    private final String clanNameFailed = config.getMessages("clan_name_failed");
+    private final String youAlreadyInClan = config.getMessages("you_already_in_clan");
+
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
@@ -22,14 +26,14 @@ public class ClanCreateSubCommand implements SubCommand {
 
         if (args.length == 1){
             if (clanRepository.getClanStatus(userName) == null){
-                if (clanRepository.isClanNameNotFound(clanName)){
+                if (clanName.length() == 3 && clanRepository.isClanNameNotFound(clanName)){
                     clanRepository.createClan(clanName);
                     player.sendMessage(color(config.getMessages("clan_created").replace("{clanName}", clanName)));
                 }else {
-                    player.sendMessage(color(config.getMessages("clan_already_exists")));
+                    player.sendMessage(color(clanNameFailed));
                 }
             }else {
-                player.sendMessage(color(config.getMessages("you_already_in_clan")));
+                player.sendMessage(color(youAlreadyInClan));
             }
         }
 

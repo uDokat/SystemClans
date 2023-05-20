@@ -11,6 +11,11 @@ import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import java.sql.Connection;
 
 public class ClanKickSubCommand implements SubCommand {
+
+    private final ConfigManager config = new ConfigManager();
+    private final String lackOfRights = config.getMessages("lack_of_rights");
+    private final String playerNotInClan = config.getMessages("player_not_in_clan");
+
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
@@ -22,7 +27,6 @@ public class ClanKickSubCommand implements SubCommand {
         Connection connection = SystemClans.getConnection();
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
-        ConfigManager config = new ConfigManager();
 
         if (args.length == 1){
             if (clanRepository.getClanStatus(userName) != null){
@@ -30,10 +34,10 @@ public class ClanKickSubCommand implements SubCommand {
                     playerRepository.deletePlayer(userName, userName1);
                     player.sendMessage(color(config.getMessages("player_kicked").replace("{userName1}", userName1)));
                 }else {
-                    player.sendMessage(color(config.getMessages("lack_of_rights")));
+                    player.sendMessage(color(lackOfRights));
                 }
             }else {
-                player.sendMessage(color(config.getMessages("player_not_in_clan")));
+                player.sendMessage(color(playerNotInClan));
             }
         }
 
