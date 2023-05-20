@@ -1,0 +1,12 @@
+name: SystemClans
+version: '${project.version}'
+main: org.dokat.systemclans.SystemClans
+api-version: 1.18
+authors: [ Dokat ]
+commands:
+  clan:
+    aliases: [c]
+    subcommands:
+      create:
+      add:
+      remove:

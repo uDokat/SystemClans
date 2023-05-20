@@ -1,0 +1,46 @@
+messages:
+  not_clan: "&cТы не состоишь в клане"
+  subcommand_not_found: "&6Подкоманда не найдена!"
+  joined_clan: "&aВы вступили в клан &6&l{clanName}"
+
+  player_added: "&aИгрок&c {userName1} &aуспешно добавлен в клан"
+  player_already_in_clan: "&cИгрок уже состоит в клане"
+  player_not_in_clan: "&cИгрок не состоит в вашем клане клане"
+  player_kicked: "&aИгрок&c {userName1} &aбыл кикнут"
+
+  you_already_in_clan: "&cТы уже состоишь в клане"
+  lack_of_rights: "&cУ тебя недостаточно прав на использование данной команды"
+
+  clan_created: "&aКлан &6&l{clanName} &aуспешно создан"
+  clan_deleted: "&aКлан успешно удалён"
+  clan_already_exists: "&cКлан с таким именем уже существует"
+
+
+color_messages:
+
+
+clan_settings:
+#  Нужный баланс клана для повышения уровня
+  balance_to_level_up_one: 100
+  balance_to_level_up_two: 150
+  balance_to_level_up_three: 200
+
+# Максимальный баланс для каждого уровня клана
+  max_balance_level_one: 1000
+  max_balance_level_two: 1050
+  max_balance_level_three: 1100
+  max_amount_players: 100
+
+# Цена /rename
+  price_rename: 100
+
+# Права на использование команды.
+# 0 Игрок
+# 1 Доверенный
+# 2 Создатель
+  permission_for_kick: 1
+  permission_for_add: 1
+  permission_for_sethome: 1
+  permission_for_set_welcome_message: 2
+  permission_for_rename: 2
+  permission_for_delete: 2

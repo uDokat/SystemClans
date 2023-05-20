@@ -1,4 +1,0 @@
-name: SystemClans
-version: '${project.version}'
-main: org.dokat.systemclans.SystemClans
-api-version: 1.18
