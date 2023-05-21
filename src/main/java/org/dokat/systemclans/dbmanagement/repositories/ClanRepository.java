@@ -227,15 +227,18 @@ public class ClanRepository {
                 y = resultSet.getDouble("y");
                 z = resultSet.getDouble("z");
                 worldName = resultSet.getString("world_name");
+
+                return new Location(Bukkit.getWorld(worldName), x, y, z);
+            }else {
+                return null;
             }
 
-            return new Location(Bukkit.getWorld(worldName), x, y, z);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void setLocationClanHome(String clanName, double x, double y, double z, String worldName){
+    public void createLocationClanHome(String clanName, double x, double y, double z, String worldName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clan_houses (x, y, z, world_name, clan_id) VALUES (?, ?, ? ,?, ?)")) {
 
             int clanId = getClanIdByName(clanName);
@@ -249,6 +252,27 @@ public class ClanRepository {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void updateLocationClanHome(String clanName, double x, double y, double z, String worldName){
+        if (getLocationClanHome(clanName) == null){
+            createLocationClanHome(clanName, x, y, z, worldName);
+        }else {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clan_houses SET x = ?, y = ?, z = ?, world_name = ? WHERE clan_id = ?")) {
+
+                int clanId = getClanIdByName(clanName);
+
+                preparedStatement.setDouble(1, x);
+                preparedStatement.setDouble(2, y);
+                preparedStatement.setDouble(3, z);
+                preparedStatement.setString(4, worldName);
+                preparedStatement.setInt(5, clanId);
+                preparedStatement.executeUpdate();
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
