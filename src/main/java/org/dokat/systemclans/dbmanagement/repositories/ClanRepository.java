@@ -1,5 +1,7 @@
 package org.dokat.systemclans.dbmanagement.repositories;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 
@@ -43,7 +45,7 @@ public class ClanRepository {
         try (PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_name = ?");
              PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE clan_name = ? AND id = ?")) {
 
-            String clanName =  cache.getClanStatus(userName);
+            String clanName =  cache.getClanName(userName);
 
             preparedStatementPlayer.setString(1, clanName);
             preparedStatementPlayer.executeUpdate();
@@ -91,7 +93,7 @@ public class ClanRepository {
         }
     }
 
-    public String getClanStatus(String userName){
+    public String getClanName(String userName){
         try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT clan_name FROM players WHERE user_name = ?")) {
             preparedStatement.setString(1, userName);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -147,9 +149,13 @@ public class ClanRepository {
         }
     }
 
+    public void setClanLevel(String clanName, int clanLevel){
+
+    }
+
     public int getClanBalance(){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM clans WHERE clan_name = ?")) {
-            preparedStatement.setString(1, getClanStatus(userName));
+            preparedStatement.setString(1, getClanName(userName));
 
             int balance = 0;
 
@@ -198,6 +204,47 @@ public class ClanRepository {
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET amount_player = ? WHERE clan_name = ?")) {
             preparedStatement.setInt(1, amountPlayer);
             preparedStatement.setString(2, clanName);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Location getLocationClanHome(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT x, y, z, world_name FROM clan_houses WHERE clan_id = ?")) {
+            int clanId = getClanIdByName(clanName);
+            preparedStatement.setDouble(1, clanId);
+
+            double x = 0;
+            double y = 0;
+            double z = 0;
+            String worldName = null;
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                x = resultSet.getDouble("x");
+                y = resultSet.getDouble("y");
+                z = resultSet.getDouble("z");
+                worldName = resultSet.getString("world_name");
+            }
+
+            return new Location(Bukkit.getWorld(worldName), x, y, z);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setLocationClanHome(String clanName, double x, double y, double z, String worldName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clan_houses (x, y, z, world_name, clan_id) VALUES (?, ?, ? ,?, ?)")) {
+
+            int clanId = getClanIdByName(clanName);
+
+            preparedStatement.setDouble(1, x);
+            preparedStatement.setDouble(2, y);
+            preparedStatement.setDouble(3, z);
+            preparedStatement.setString(4, worldName);
+            preparedStatement.setInt(5, clanId);
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
