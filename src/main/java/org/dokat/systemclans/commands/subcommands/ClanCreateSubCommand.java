@@ -4,7 +4,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+
+import java.sql.Connection;
 
 public class ClanCreateSubCommand implements SubCommand {
 
@@ -17,15 +20,15 @@ public class ClanCreateSubCommand implements SubCommand {
         Player player = (Player) sender;
         String userName = player.getName();
 
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), userName);
+        Connection connection = SystemClans.getConnection();
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+        ClanRepository clanRepository = new ClanRepository(connection, userName);
         ConfigManager config = new ConfigManager();
 
         String clanName = args[0].toUpperCase();
 
-        //добавить проверку на название клана который игрок указывает
-
         if (args.length == 1){
-            if (clanRepository.getClanStatus(userName) == null){
+            if (cache.getClanName(userName) == null){
                 if (clanName.length() == 3 && clanRepository.isClanNameNotFound(clanName)){
                     clanRepository.createClan(clanName);
                     player.sendMessage(color(config.getMessages("clan_created").replace("{clanName}", clanName)));

@@ -10,6 +10,7 @@ import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clanmenu.ClanMenu;
 import org.dokat.systemclans.commands.subcommands.*;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,9 @@ public class ClanCommand implements CommandExecutor {
         subCommands.put("kick", new ClanKickSubCommand());
         subCommands.put("delete", new ClanDeleteSubCommand());
         subCommands.put("rename", new ClanRenameSubCommand());
+        subCommands.put("setleader", new ClanLeaderSubCommand());
+        subCommands.put("rank", new ClanSetRankSubCommand());
+        subCommands.put("welcome", new ClanWelcomeSubCommand());
     }
 
     @Override
@@ -40,13 +44,13 @@ public class ClanCommand implements CommandExecutor {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
 
         ClanMenu clanMenu = new ClanMenu(userName);
         ConfigManager config = new ConfigManager();
 
         if (args.length == 0){
-            if (clanRepository.getClanStatus(userName) != null){
+            if (cache.getClanName(userName) != null){
                 clanMenu.setItem();
                 player.openInventory(clanMenu.getInventory());
                 return true;

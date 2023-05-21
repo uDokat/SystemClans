@@ -3,7 +3,6 @@ package org.dokat.systemclans.dbmanagement.cache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 public class ClanStatusCache {
@@ -20,12 +19,12 @@ public class ClanStatusCache {
         cache.put(userName, clanName);
     }
 
-    public String getClanStatus(String userName) throws SQLException {
+    public String getClanName(String userName){
         if (cache.containsKey(userName)) {
             return cache.get(userName);
         } else {
             ClanRepository repository = new ClanRepository(connection, userName);
-            String clanStatus = repository.getClanStatus(userName);
+            String clanStatus = repository.getClanName(userName);
             cache.put(userName, clanStatus);
 
             return cache.get(userName);

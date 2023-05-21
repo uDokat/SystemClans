@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
@@ -23,10 +24,11 @@ public class ClanDeleteSubCommand implements SubCommand {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        if(clanRepository.getClanStatus(userName) != null){
+        if(cache.getClanName(userName) != null){
             if (playerRepository.getPlayerGroup(userName) >= 1){
                 clanRepository.deleteClan(userName);
                 player.sendMessage(color(clanDeleted));

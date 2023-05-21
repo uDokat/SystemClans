@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
@@ -19,23 +20,23 @@ public class ClanAddSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
-        Player player1 = Bukkit.getPlayer(args[0]);
+        Player targetPlayer = Bukkit.getPlayer(args[0]);
 
         String userName = player.getName();
-        String userName1 = player1.getName();
+        String targetUserName = targetPlayer.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        String clanName = clanRepository.getClanStatus(userName);
+        String clanName = cache.getClanName(userName);
 
         if (args.length == 1){
             if (playerRepository.getPlayerGroup(userName) >= 1){
-                if (clanRepository.getClanStatus(userName1) == null){
-                    playerRepository.savePlayer(userName1, clanName, 0);
-                    player1.sendMessage(color(config.getMessages("joined_clan").replace("{clanName}", clanName)));
-                    player.sendMessage(color(config.getMessages("player_added").replace("{userName1}", userName1)));
+                if (cache.getClanName(targetUserName) == null){
+                    playerRepository.savePlayer(targetUserName, clanName, 0);
+                    targetPlayer.sendMessage(color(config.getMessages("joined_clan").replace("{clanName}", clanName)));
+                    player.sendMessage(color(config.getMessages("player_added").replace("{targetUserName}", targetUserName)));
                 }else {
                     player.sendMessage(color(playerAlreadyInClan));
                 }

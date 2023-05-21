@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
@@ -22,10 +23,11 @@ public class CustomItemStatistics implements CustomItem {
         itemMeta.setDisplayName(color("&c" + "Статистика"));
 
         Connection connection = SystemClans.getConnection();
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        String clanName = clanRepository.getClanStatus(userName);
+        String clanName = cache.getClanName(userName);
 
         lore.add(color("&a" + "Название: " + "&6&l" + clanName));
         lore.add(color("&a" + "Ранг: " + "&c" + playerRepository.groupToString(playerRepository.getPlayerGroup(userName))));

@@ -4,6 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 
 import java.sql.Connection;
@@ -24,8 +25,9 @@ public class ClanRenameSubCommand implements SubCommand{
 
         Connection connection = SystemClans.getConnection();
         ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
 
-        String clanName = clanRepository.getClanStatus(userName);
+        String clanName = cache.getClanName(userName);
         String newClanName = args[0].toUpperCase();
 
         if (clanName != null){
