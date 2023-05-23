@@ -23,11 +23,11 @@ public class CustomItemStatistics implements CustomItem {
         itemMeta.setDisplayName(color("&c" + "Статистика"));
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        String clanName = cache.getClanName(userName);
+        String clanName = clanRepository.getClanName(userName);
 
         lore.add(color("&a" + "Название: " + "&6&l" + clanName));
         lore.add(color("&a" + "Ранг: " + "&c" + playerRepository.groupToString(playerRepository.getPlayerGroup(userName))));

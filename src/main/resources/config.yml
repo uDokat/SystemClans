@@ -4,10 +4,12 @@ messages:
   subcommand_not_found: "&6Подкоманда не найдена!"
   joined_clan: "&aВы вступили в клан &6&l{clanName}"
 
-  player_added: "&aИгрок&c {userName1} &aуспешно добавлен в клан"
+  player_added: "&aИгрок&c {targetUserName} &aуспешно добавлен в клан"
   player_already_in_clan: "&cИгрок уже состоит в клане"
   player_not_in_clan: "&cИгрок не состоит в вашем клане клане"
-  player_kicked: "&aИгрок&c {userName1} &aбыл кикнут"
+  player_kicked: "&aИгрок&c {targetUserName} &aбыл кикнут"
+
+  permission_betrayed: "&aЛидерство перенадо игроку &c{targetUserName}"
 
   you_already_in_clan: "&cТы уже состоишь в клане"
   lack_of_rights: "&cУ тебя недостаточно прав на использование данной команды"
@@ -16,13 +18,29 @@ messages:
   clan_deleted: "&aКлан успешно удалён"
   clan_renamed: "&aНазвание клана изменено на &6&l{newClanName}"
   clan_name_failed: "&cНазвание клана уже уществует или указано неправильно"
+  clan_home_not_found: "&cУ клана не создан клановый хом"
+  clan_home_created: "&aХом клана успешно создан"
+
+  command_failed: "&cКоманда была введена не правильно"
+
+  group_player_up: "&aГруппа игрока &c{targetUserName} &aбыла повышена до &c{group}"
+  group_player_down: "&aГруппа игрока &c{targetUserName} &aбыла понижена до &c{group}"
+  group_cannot_be_raised: "&cГруппа игрока уже повышена до максимального уровня"
+  group_reduced_to_minimum_level: "&cГруппа игрока уже понижена до минимального уровня"
 
   not_enough_money: "&cНедостаточно средств клана"
+
+  welcome_message_created: "&aПриветственное сообщение было обновлено"
+  welcome_failed: "&cПриветственное сообщение не было указано"
+
 
 color_messages:
 
 
 clan_settings:
+# Длинна имени клана
+  clan_name_length: 3
+
 #  Нужный баланс клана для повышения уровня
   balance_to_level_up_one: 100
   balance_to_level_up_two: 150
@@ -44,6 +62,7 @@ clan_settings:
   permission_for_kick: 1
   permission_for_add: 1
   permission_for_sethome: 1
+  permission_for_up_rank: 2
   permission_for_set_welcome_message: 2
   permission_for_rename: 2
   permission_for_delete: 2

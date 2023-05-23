@@ -1,18 +1,13 @@
 package org.dokat.systemclans.dbmanagement.repositories;
 
-import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
-
 import java.sql.*;
 
 public class PlayerRepository {
 
     private Connection connection;
-    private ClanStatusCache cache;
 
     public PlayerRepository(Connection connection) {
         this.connection = connection;
-        this.cache = new ClanStatusCache(connection, SystemClans.getCache());
     }
 
     //убрал синхр
@@ -41,10 +36,9 @@ public class PlayerRepository {
             preparedStatement.executeUpdate();
 
             ClanRepository repository = new ClanRepository(connection, "");
-            String clanName = repository.getClanStatus(userName);
+            String clanName = repository.getClanName(userName);
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) - 1);
-            cache.deletePlayerFromCache(deleteName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -67,8 +61,20 @@ public class PlayerRepository {
         return 0;
     }
 
-    public void setPlayerGroup(String userName){
+    public void setPlayerGroup(String userName, int group){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET `group` = ? WHERE user_name = ? AND clan_id = ?")) {
 
+            ClanRepository repository = new ClanRepository(connection, userName);
+            int claId =  repository.getClanIdByName(repository.getClanName(userName));
+
+            preparedStatement.setInt(1, group);
+            preparedStatement.setString(2, userName);
+            preparedStatement.setInt(3, claId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String groupToString(int group){

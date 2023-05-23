@@ -2,16 +2,13 @@ package org.dokat.systemclans;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.ClanCommand;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
+import org.dokat.systemclans.commands.subcommands.CheckCache;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
-import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 
 public final class SystemClans extends JavaPlugin {
 
@@ -19,8 +16,6 @@ public final class SystemClans extends JavaPlugin {
 
     private static Connection connection;
     private DatabaseConnection databaseConnection;
-
-    private static HashMap<String, String> cache = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -35,6 +30,7 @@ public final class SystemClans extends JavaPlugin {
         }
 
         new ClanCommand();
+        new CheckCache();
     }
 
     @Override
@@ -55,7 +51,9 @@ public final class SystemClans extends JavaPlugin {
                 "clan_name VARCHAR(225)," +
                 "level INT," +
                 "balance INT," +
-                "amount_player INT " +
+                "amount_player INT," +
+                "welcome_massage VARCHAR(255)," +
+                "pvp TINYINT" +
                 ")");
     }
 
@@ -71,8 +69,17 @@ public final class SystemClans extends JavaPlugin {
                 ")");
     }
 
-    public static HashMap<String, String> getCache(){
-        return cache;
+    public void createNewClanHomeTable() throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute("CREATE TABLE IF NOT EXISTS `clan_houses` (" +
+                "id INT PRIMARY KEY AUTO_INCREMENT," +
+                "x DOUBLE," +
+                "y DOUBLE," +
+                "z DOUBLE," +
+                "world_name VARCHAR(50)," +
+                "clan_id INT," +
+                "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
+                ")");
     }
 
     public static Connection getConnection() {
