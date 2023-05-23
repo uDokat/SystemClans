@@ -2,24 +2,22 @@ package org.dokat.systemclans.dbmanagement.repositories;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClanRepository {
 
     private Connection connection;
-    private ClanStatusCache cache;
     private String userName;
 
     public ClanRepository(Connection connection, String userName) {
         this.connection = connection;
         this.userName = userName;
-        this.cache = new ClanStatusCache(connection, SystemClans.getCache());
     }
 
     //убрал синхр.
@@ -35,27 +33,30 @@ public class ClanRepository {
 
             PlayerRepository repository = new PlayerRepository(connection);
             repository.savePlayer(userName, clanName, 2);
-            cache.setClanStatus(userName, clanName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void deleteClan(String userName){
-        try (PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_name = ?");
-             PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE clan_name = ? AND id = ?")) {
+        try (PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE id = ?");
+             PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_id = ?")) {
 
-            String clanName =  cache.getClanName(userName);
+            String clanName = getClanName(userName);
+            int clanId = getClanIdByName(clanName);
 
-            preparedStatementPlayer.setString(1, clanName);
+            if (getLocationClanHome(clanName) != null){
+                PreparedStatement preparedStatementHome = connection.prepareStatement("DELETE FROM clan_houses WHERE clan_id = ?");
+                preparedStatementHome.setInt(1, clanId);
+                preparedStatementHome.executeUpdate();
+            }
+
+            preparedStatementPlayer.setInt(1, clanId);
             preparedStatementPlayer.executeUpdate();
 
-            preparedStatementClan.setString(1, clanName);
-            preparedStatementClan.setInt(2, getClanIdByName(clanName));
+            preparedStatementClan.setInt(1, clanId);
             preparedStatementClan.executeUpdate();
 
-//            cache.deletePlayerFromCache(userName);
-            // дописать метод что бы он брал всех пользователей из бд перед удалением и удалял из кэша
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -211,6 +212,23 @@ public class ClanRepository {
         }
     }
 
+    public List<String> getAllPlayersForClanName(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT user_name FROM players WHERE clan_name = ?")) {
+            preparedStatement.setString(1, clanName);
+
+            List<String> list = new ArrayList<>();
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                list.add(resultSet.getString("user_name"));
+            }
+
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Location getLocationClanHome(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT x, y, z, world_name FROM clan_houses WHERE clan_id = ?")) {
             int clanId = getClanIdByName(clanName);
@@ -273,6 +291,36 @@ public class ClanRepository {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public String getWelcomeMessage(String clanName) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT welcome_massage FROM clans WHERE clan_name = ?")) {
+            preparedStatement.setString(1, clanName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("welcome_massage");
+            }else {
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setWelcomeMessage(String clanName, String welcomeMessage){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET welcome_massage = ? WHERE id = ?")) {
+
+            int clanId = getClanIdByName(clanName);
+
+            preparedStatement.setString(1, welcomeMessage);
+            preparedStatement.setInt(2, clanId);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }
