@@ -24,20 +24,27 @@ public class ClanSetRankSubCommand implements SubCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
-        Player targetPlayer = Bukkit.getPlayer(args[0]);
+        Player targetPlayer = null;
+
+        if (args.length >= 1){
+            targetPlayer = Bukkit.getPlayer(args[0]);
+        }else {
+            player.sendMessage(color(commandFailed));
+            return true;
+        }
 
         String userName = player.getName();
         String targetUserName = targetPlayer.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+        ClanRepository clanRepository = new ClanRepository(connection, "");
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
         int userGroup = playerRepository.getPlayerGroup(userName);
         int targetUserGroup = playerRepository.getPlayerGroup(targetUserName);
 
-        String userClan = cache.getClanName(userName);
-        String targetUserClan = cache.getClanName(targetUserName);
+        String userClan = clanRepository.getClanName(userName);
+        String targetUserClan = clanRepository.getClanName(targetUserName);
 
         if (args.length == 2){
             if (userClan.equals(targetUserClan)){

@@ -13,9 +13,11 @@ import java.sql.Connection;
 public class ClanDeleteSubCommand implements SubCommand {
 
     private final ConfigManager config = new ConfigManager();
+    private final int permissionForDelete = config.getClanSettings("permission_for_delete");
     private final String clanDeleted = config.getMessages("clan_deleted");
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String notClan = config.getMessages("not_clan");
+    private final String commandFailed = config.getMessages("command_failed");
 
     @Override
     public boolean execute(CommandSender sender, String[] args){
@@ -24,14 +26,18 @@ public class ClanDeleteSubCommand implements SubCommand {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        if(cache.getClanName(userName) != null){
-            if (playerRepository.getPlayerGroup(userName) >= 1){
-                clanRepository.deleteClan(userName);
-                player.sendMessage(color(clanDeleted));
+        if(clanRepository.getClanName(userName) != null){
+            if (playerRepository.getPlayerGroup(userName) >= permissionForDelete){
+                if (args.length == 0){
+                    clanRepository.deleteClan(userName);
+                    player.sendMessage(color(clanDeleted));
+                }else {
+                    player.sendMessage(color(commandFailed));
+                }
             }else {
                 player.sendMessage(color(lackOfRights));
             }

@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
@@ -14,8 +13,10 @@ import java.sql.Connection;
 public class ClanKickSubCommand implements SubCommand {
 
     private final ConfigManager config = new ConfigManager();
+    private final int permissionForKick = config.getClanSettings("permission_for_kick");
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String playerNotInClan = config.getMessages("player_not_in_clan");
+    private final String commandFailed = config.getMessages("command_failed");
 
     @Override
     public boolean execute(CommandSender sender, String[] args){
@@ -26,20 +27,22 @@ public class ClanKickSubCommand implements SubCommand {
         String targetUserName = targetPlayer.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+        ClanRepository clanRepository = new ClanRepository(connection, "");
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        if (args.length == 1){
-            if (cache.getClanName(userName) != null){
-                if (playerRepository.getPlayerGroup(userName) >= 1){
+        if (clanRepository.getClanName(userName) != null){
+            if (playerRepository.getPlayerGroup(userName) >= permissionForKick){
+                if (args.length == 1){
                     playerRepository.deletePlayer(userName, targetUserName);
                     player.sendMessage(color(config.getMessages("player_kicked").replace("{targetUserName}", targetUserName)));
                 }else {
-                    player.sendMessage(color(lackOfRights));
+                    player.sendMessage(color(commandFailed));
                 }
             }else {
-                player.sendMessage(color(playerNotInClan));
+                player.sendMessage(color(lackOfRights));
             }
+        }else {
+            player.sendMessage(color(playerNotInClan));
         }
 
         return true;

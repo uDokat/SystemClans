@@ -14,37 +14,42 @@ import java.sql.Connection;
 public class ClanLeaderSubCommand implements SubCommand {
 
     private final ConfigManager config = new ConfigManager();
-    private final int permissionForRename = config.getClanSettings("permission_for_rename");
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String playerNotInClan = config.getMessages("player_not_in_clan");
+    private final String commandFailed = config.getMessages("command_failed");
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
-        Player targetPlayer = Bukkit.getPlayer(args[0]);
+        Player targetPlayer = null;
+
+        if (args.length == 1){
+            targetPlayer = Bukkit.getPlayer(args[0]);
+        }else {
+            player.sendMessage(color(commandFailed));
+            return true;
+        }
 
         String userName = player.getName();
         String targetUserName = targetPlayer.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+        ClanRepository clanRepository = new ClanRepository(connection, "");
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        String clanName = cache.getClanName(userName);
-        String targetClanName = cache.getClanName(targetUserName);
+        String clanName = clanRepository.getClanName(userName);
+        String targetClanName = clanRepository.getClanName(targetUserName);
 
-        if (args.length == 1){
-            if (clanName.equals(targetClanName)){
-                if (playerRepository.getPlayerGroup(userName) == permissionForRename){
-                    playerRepository.setPlayerGroup(targetUserName, 2);
-                    playerRepository.setPlayerGroup(userName, 0);
-                    player.sendMessage(color(config.getMessages("permission_betrayed").replace("{targetUserName}", targetUserName)));
-                }else {
-                    player.sendMessage(color(lackOfRights));
-                }
+        if (clanName.equals(targetClanName)){
+            if (playerRepository.getPlayerGroup(userName) == 2){
+                playerRepository.setPlayerGroup(targetUserName, 2);
+                playerRepository.setPlayerGroup(userName, 0);
+                player.sendMessage(color(config.getMessages("permission_betrayed").replace("{targetUserName}", targetUserName)));
             }else {
-                player.sendMessage(color(playerNotInClan));
+                player.sendMessage(color(lackOfRights));
             }
+        }else {
+            player.sendMessage(color(playerNotInClan));
         }
 
         return true;

@@ -17,7 +17,8 @@ public class ClanSetHomeSubCommand implements SubCommand{
     private final int permissionForSethome = config.getClanSettings("permission_for_sethome");
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String notClan = config.getMessages("not_clan");
-    private final String clanHomeCreated= config.getMessages("clan_home_created");
+    private final String clanHomeCreated = config.getMessages("clan_home_created");
+    private final String commandFailed = config.getMessages("command_failed");
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
@@ -26,16 +27,20 @@ public class ClanSetHomeSubCommand implements SubCommand{
         Location playerLocation = player.getLocation();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+
         ClanRepository clanRepository = new ClanRepository(connection, userName);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        String clanName = cache.getClanName(userName);
+        String clanName = clanRepository.getClanName(userName);
 
         if (clanName != null){
             if (playerRepository.getPlayerGroup(userName) >= permissionForSethome){
-                clanRepository.updateLocationClanHome(clanName, playerLocation.getX(), playerLocation.getY(), playerLocation.getZ(), player.getWorld().getName());
-                player.sendMessage(color(clanHomeCreated));
+                if (args.length == 0){
+                    clanRepository.updateLocationClanHome(clanName, playerLocation.getX(), playerLocation.getY(), playerLocation.getZ(), player.getWorld().getName());
+                    player.sendMessage(color(clanHomeCreated));
+                }else {
+                    player.sendMessage(color(commandFailed));
+                }
             }else {
                 player.sendMessage(color(lackOfRights));
             }

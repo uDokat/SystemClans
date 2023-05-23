@@ -36,6 +36,8 @@ public class ClanCommand implements CommandExecutor {
         subCommands.put("setleader", new ClanLeaderSubCommand());
         subCommands.put("rank", new ClanSetRankSubCommand());
         subCommands.put("welcome", new ClanWelcomeSubCommand());
+        subCommands.put("home", new ClanHomeSubCommand());
+        subCommands.put("sethome", new ClanSetHomeSubCommand());
     }
 
     @Override
@@ -44,13 +46,13 @@ public class ClanCommand implements CommandExecutor {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanStatusCache cache = new ClanStatusCache(connection, SystemClans.getCache());
+        ClanRepository clanRepository = new ClanRepository(connection, "");
 
         ClanMenu clanMenu = new ClanMenu(userName);
         ConfigManager config = new ConfigManager();
 
         if (args.length == 0){
-            if (cache.getClanName(userName) != null){
+            if (clanRepository.getClanName(userName) != null){
                 clanMenu.setItem();
                 player.openInventory(clanMenu.getInventory());
                 return true;
