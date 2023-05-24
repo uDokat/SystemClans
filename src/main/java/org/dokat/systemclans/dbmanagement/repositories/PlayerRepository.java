@@ -30,13 +30,12 @@ public class PlayerRepository {
         }
     }
 
-    public void deletePlayer(String userName, String deleteName){
+    public void deletePlayer(String clanName, String deleteName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM players WHERE user_name = ?")) {
             preparedStatement.setString(1, deleteName);
             preparedStatement.executeUpdate();
 
             ClanRepository repository = new ClanRepository(connection, "");
-            String clanName = repository.getClanName(userName);
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) - 1);
         } catch (SQLException e) {

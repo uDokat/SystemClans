@@ -2,7 +2,7 @@ package org.dokat.systemclans;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.ClanCommand;
-import org.dokat.systemclans.commands.subcommands.CheckCache;
+import org.dokat.systemclans.commands.subcommands.Check;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
 
@@ -30,7 +30,7 @@ public final class SystemClans extends JavaPlugin {
         }
 
         new ClanCommand();
-        new CheckCache();
+        new Check();
     }
 
     @Override

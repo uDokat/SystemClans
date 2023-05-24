@@ -202,9 +202,9 @@ public class ClanRepository {
     }
 
     public void setAmountPlayer(String clanName, int amountPlayer){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET amount_player = ? WHERE clan_name = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET amount_player = ? WHERE id = ?")) {
             preparedStatement.setInt(1, amountPlayer);
-            preparedStatement.setString(2, clanName);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {

@@ -2,16 +2,20 @@ messages:
 # Если будешь удалять {clanName} и тд, то удали методы .replace в субкомандах (не обязательно)
   not_clan: "&cТы не состоишь в клане"
   subcommand_not_found: "&6Подкоманда не найдена!"
-  joined_clan: "&aВы вступили в клан &6&l{clanName}"
+  joined_clan: "&aТы вступил в клан &6&l{clanName}"
 
-  player_added: "&aИгрок&c {targetUserName} &aуспешно добавлен в клан"
+  player_added: "&aИгрок&c {targetUserName} &aдобавлен в клан"
   player_already_in_clan: "&cИгрок уже состоит в клане"
   player_not_in_clan: "&cИгрок не состоит в вашем клане клане"
-  player_kicked: "&aИгрок&c {targetUserName} &aбыл кикнут"
+  player_kicked_cause: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName} &aпо причине: &6{cause}"
+  player_kicked: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName}"
 
   permission_betrayed: "&aЛидерство перенадо игроку &c{targetUserName}"
 
   you_already_in_clan: "&cТы уже состоишь в клане"
+  you_kicked_from_clan_cause: "&aТы был кикнут из клана игроком &c{userName} &aпо причине: &6{cause}"
+  you_kicked_from_clan: "&aТы был кикнут из клана игроком &c{userName}"
+
   lack_of_rights: "&cУ тебя недостаточно прав на использование данной команды"
 
   clan_created: "&aКлан &6&l{clanName} &aуспешно создан"
@@ -20,6 +24,8 @@ messages:
   clan_name_failed: "&cНазвание клана уже уществует или указано неправильно"
   clan_home_not_found: "&cУ клана не создан клановый хом"
   clan_home_created: "&aХом клана успешно создан"
+  clan_leave: "&aИгрок &c{userName} &aпокинул клан"
+  clan_leave_failed: "&cЛидер клана не может покинуть клан"
 
   command_failed: "&cКоманда была введена не правильно"
 
@@ -35,7 +41,6 @@ messages:
 
 
 color_messages:
-
 
 clan_settings:
 # Длинна имени клана

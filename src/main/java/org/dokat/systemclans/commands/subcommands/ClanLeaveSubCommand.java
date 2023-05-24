@@ -31,8 +31,8 @@ public class ClanLeaveSubCommand implements SubCommand{
         if (clanName != null){
             if (playerRepository.getPlayerGroup(userName) < 2){
                 if (args.length == 0){
+                    sendMessageEveryone(clanName, clanLeave.replace("{userName}", userName), null);
                     playerRepository.deletePlayer(clanName, userName);
-                    player.sendMessage(color(clanLeave));
                 }else {
                     player.sendMessage(color(commandFailed));
                 }

@@ -20,6 +20,8 @@ public class ClanSetRankSubCommand implements SubCommand {
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String playerNotInClan = config.getMessages("player_not_in_clan");
     private final String commandFailed = config.getMessages("command_failed");
+    private final String playerUp = config.getMessages("group_player_up");
+    private final String playerDown = config.getMessages("group_player_down");
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
@@ -45,6 +47,8 @@ public class ClanSetRankSubCommand implements SubCommand {
 
         String userClan = clanRepository.getClanName(userName);
         String targetUserClan = clanRepository.getClanName(targetUserName);
+        String playerUpMessage = playerUp.replace("{targetUserName}", targetUserName).replace("{group}", playerRepository.groupToString(1));
+        String playerDownMessage = playerDown.replace("{targetUserName}", targetUserName).replace("{group}", playerRepository.groupToString(0));
 
         if (args.length == 2){
             if (userClan.equals(targetUserClan)){
@@ -52,18 +56,14 @@ public class ClanSetRankSubCommand implements SubCommand {
                     if (args[1].equalsIgnoreCase("up")){
                         if (targetUserGroup == 0){
                             playerRepository.setPlayerGroup(targetUserName, 1);
-                            player.sendMessage(color(config.getMessages("group_player_up")
-                                    .replace("{targetUserName}", targetUserName)
-                                    .replace("{group}", playerRepository.groupToString(1))));
+                            sendMessageEveryone(userClan, playerUpMessage, targetUserName);
                         }else {
                             player.sendMessage(color(groupCannotBeRaised));
                         }
                     } else if (args[1].equalsIgnoreCase("down")) {
                         if (targetUserGroup == 1){
                             playerRepository.setPlayerGroup(targetUserName, 0);
-                            player.sendMessage(color(config.getMessages("group_player_down")
-                                    .replace("{targetUserName}", targetUserName)
-                                    .replace("{group}", playerRepository.groupToString(0))));
+                            sendMessageEveryone(userClan, playerDownMessage, targetUserName);
                         }
                     }else {
                         player.sendMessage(color(groupReducedToMinimumLevel));

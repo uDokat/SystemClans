@@ -42,7 +42,7 @@ public class ClanRenameSubCommand implements SubCommand{
                         if (clanRepository.getClanBalance() >= priceRename){
                             clanRepository.setClanBalance(clanName, priceRename);
                             clanRepository.setClanName(clanName, newClanName);
-                            player.sendMessage(color(clanRenamed));
+                            sendMessageEveryone(clanName, clanRenamed.replace("{newClanName}", newClanName), null);
                         }else {
                             player.sendMessage(color(notEnoughMoney));
                         }

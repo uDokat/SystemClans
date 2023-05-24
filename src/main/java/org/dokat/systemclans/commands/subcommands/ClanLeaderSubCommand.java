@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
@@ -17,6 +16,7 @@ public class ClanLeaderSubCommand implements SubCommand {
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String playerNotInClan = config.getMessages("player_not_in_clan");
     private final String commandFailed = config.getMessages("command_failed");
+    private final String permissionBetrayed = config.getMessages("permission_betrayed");
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
@@ -39,12 +39,13 @@ public class ClanLeaderSubCommand implements SubCommand {
 
         String clanName = clanRepository.getClanName(userName);
         String targetClanName = clanRepository.getClanName(targetUserName);
+        String permissionBetrayedMessage = permissionBetrayed.replace("{targetUserName}", targetUserName);
 
         if (clanName.equals(targetClanName)){
             if (playerRepository.getPlayerGroup(userName) == 2){
                 playerRepository.setPlayerGroup(targetUserName, 2);
                 playerRepository.setPlayerGroup(userName, 0);
-                player.sendMessage(color(config.getMessages("permission_betrayed").replace("{targetUserName}", targetUserName)));
+                sendMessageEveryone(clanName, permissionBetrayedMessage, targetUserName);
             }else {
                 player.sendMessage(color(lackOfRights));
             }
