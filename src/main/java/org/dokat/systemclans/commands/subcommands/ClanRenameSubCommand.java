@@ -4,13 +4,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanRenameSubCommand implements SubCommand{
+public class ClanRenameSubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
     private final int permissionForRename = config.getClanSettings("permission_for_rename");

@@ -114,18 +114,16 @@ public class ClanRepository {
     }
 
     public void setClanName(String clanName, String newClanName){
-        try (PreparedStatement preparedStatementClan = connection.prepareStatement("UPDATE clans SET clan_name = ? WHERE clan_name = ? AND id = ?");
-             PreparedStatement preparedStatementPlayer = connection.prepareStatement("UPDATE players SET clan_name = ? WHERE clan_name = ? AND clan_id = ?")) {
+        try (PreparedStatement preparedStatementClan = connection.prepareStatement("UPDATE clans SET clan_name = ? WHERE id = ?");
+             PreparedStatement preparedStatementPlayer = connection.prepareStatement("UPDATE players SET clan_name = ? WHERE clan_id = ?")) {
 
             int clanId = getClanIdByName(clanName);
 
             preparedStatementClan.setString(1, newClanName);
-            preparedStatementClan.setString(2, clanName);
             preparedStatementClan.setInt(3, clanId);
             preparedStatementClan.executeUpdate();
 
             preparedStatementPlayer.setString(1, newClanName);
-            preparedStatementPlayer.setString(2, clanName);
             preparedStatementPlayer.setInt(3, clanId);
             preparedStatementPlayer.executeUpdate();
         } catch (SQLException e) {
@@ -173,9 +171,9 @@ public class ClanRepository {
     }
 
     public void setClanBalance(String clanName, int amount){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET balance = ? WHERE clan_name = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET balance = ? WHERE id = ?")) {
             preparedStatement.setInt(1, getClanBalance() - amount);
-            preparedStatement.setString(2, clanName);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {

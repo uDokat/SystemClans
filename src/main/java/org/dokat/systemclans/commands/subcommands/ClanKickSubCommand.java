@@ -7,10 +7,11 @@ import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanKickSubCommand implements SubCommand {
+public class ClanKickSubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
     private final int permissionForKick = config.getClanSettings("permission_for_kick");

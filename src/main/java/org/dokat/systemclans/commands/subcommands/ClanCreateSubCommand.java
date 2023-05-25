@@ -5,10 +5,11 @@ import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanCreateSubCommand implements SubCommand {
+public class ClanCreateSubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
     private final int clanNameLength = config.getClanSettings("clan_name_length");

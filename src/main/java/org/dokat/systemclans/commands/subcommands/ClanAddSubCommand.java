@@ -7,10 +7,13 @@ import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.tasks.ClanInviteManager;
+import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanAddSubCommand implements SubCommand {
+public class ClanAddSubCommand implements SubCommand, Utility {
+    private ClanInviteManager clanInviteManager = SystemClans.getClanInviteManager();
 
     private final ConfigManager config = new ConfigManager();
     private final int permissionForAdd = config.getClanSettings("permission_for_add");
@@ -18,7 +21,6 @@ public class ClanAddSubCommand implements SubCommand {
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String commandFailed = config.getMessages("command_failed");
     private final String notClan = config.getMessages("not_clan");
-    private final String playerAdded = config.getMessages("player_added");
 
     @Override
     public boolean execute(CommandSender sender, String[] args){
@@ -42,18 +44,11 @@ public class ClanAddSubCommand implements SubCommand {
 
         String clanName = clanRepository.getClanName(userName);
         String targetClanName = clanRepository.getClanName(targetUserName);
-//        String welcomeMessage = clanRepository.getWelcomeMessage(clanName).replace("[player]", targetUserName);
-        String playerAddedMessage = playerAdded.replace("{targetUserName}", targetUserName);
 
         if (clanName != null){
             if (playerRepository.getPlayerGroup(userName) >= permissionForAdd){
                 if (targetClanName == null){
-                    playerRepository.savePlayer(targetUserName, clanName, 0);
-                    targetPlayer.sendMessage(color(config.getMessages("joined_clan").replace("{clanName}", clanName)));
-//                    if (welcomeMessage != null){
-//                        targetPlayer.sendMessage(color(clanRepository.getWelcomeMessage(clanName).replace("[player]", targetUserName);));
-//                    }
-                    sendMessageEveryone(clanName, playerAddedMessage, targetUserName);
+                    clanInviteManager.sendInvite(player, targetPlayer);
                 }else {
                     player.sendMessage(color(playerAlreadyInClan));
                 }

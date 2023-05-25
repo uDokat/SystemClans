@@ -8,10 +8,11 @@ import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanSetRankSubCommand implements SubCommand {
+public class ClanSetRankSubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
     private final int permissionForUpRank = config.getClanSettings("permission_for_up_rank");
