@@ -4,6 +4,7 @@ main: org.dokat.systemclans.SystemClans
 api-version: 1.18
 authors: [ Dokat ]
 commands:
+  accept:
   clan:
     aliases: [c]
     subcommands:

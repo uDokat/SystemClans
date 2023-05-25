@@ -1,5 +1,4 @@
 messages:
-# Если будешь удалять {clanName} и тд, то удали методы .replace в субкомандах (не обязательно)
   not_clan: "&cТы не состоишь в клане"
   subcommand_not_found: "&6Подкоманда не найдена!"
   joined_clan: "&aТы вступил в клан &6&l{clanName}"
@@ -9,12 +8,19 @@ messages:
   player_not_in_clan: "&cИгрок не состоит в вашем клане клане"
   player_kicked_cause: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName} &aпо причине: &6{cause}"
   player_kicked: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName}"
+  player_already_has_invite: "&aИгрок уже имеет приглашеине"
+  player_not_respond_invitation: "&c{targetUserName} &a не ответил на приглашение"
+  player_invites_to_clan: "&aИгрок &c{userName} &aприглашает тебя в клан &6&l{clanName}"
+  player_accepted_invitation: "&aИгрок &c{targetUserName} &aпринял приглашение"
+
+  invitation_sent_to_player: "&aПриглашение отправлено игроку &c{targetUserName}"
 
   permission_betrayed: "&aЛидерство перенадо игроку &c{targetUserName}"
 
   you_already_in_clan: "&cТы уже состоишь в клане"
   you_kicked_from_clan_cause: "&aТы был кикнут из клана игроком &c{userName} &aпо причине: &6{cause}"
   you_kicked_from_clan: "&aТы был кикнут из клана игроком &c{userName}"
+  you_dont_have_invitations: "&cУ тебя нет активных пришлашений"
 
   lack_of_rights: "&cУ тебя недостаточно прав на использование данной команды"
 

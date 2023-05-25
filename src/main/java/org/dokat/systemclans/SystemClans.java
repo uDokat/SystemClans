@@ -1,10 +1,11 @@
 package org.dokat.systemclans;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.dokat.systemclans.commands.AcceptCommand;
 import org.dokat.systemclans.commands.ClanCommand;
-import org.dokat.systemclans.commands.subcommands.Check;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
+import org.dokat.systemclans.tasks.ClanInviteManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,6 +17,7 @@ public final class SystemClans extends JavaPlugin {
 
     private static Connection connection;
     private DatabaseConnection databaseConnection;
+    private static ClanInviteManager clanInviteManager;
 
     @Override
     public void onEnable() {
@@ -29,8 +31,10 @@ public final class SystemClans extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        clanInviteManager = new ClanInviteManager();
+
         new ClanCommand();
-        new Check();
+        new AcceptCommand();
     }
 
     @Override
@@ -80,6 +84,10 @@ public final class SystemClans extends JavaPlugin {
                 "clan_id INT," +
                 "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
                 ")");
+    }
+
+    public static ClanInviteManager getClanInviteManager(){
+        return clanInviteManager;
     }
 
     public static Connection getConnection() {
