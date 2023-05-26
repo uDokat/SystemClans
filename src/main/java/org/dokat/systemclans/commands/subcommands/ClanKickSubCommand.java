@@ -27,7 +27,13 @@ public class ClanKickSubCommand implements SubCommand, Utility {
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
-        Player targetPlayer = Bukkit.getPlayer(args[0]);
+        Player targetPlayer = null;
+        if (Bukkit.getPlayer(args[0]) != null){
+            targetPlayer = Bukkit.getPlayer(args[0]);
+        }else {
+            // сообщение что игрок не в сети
+            return true;
+        }
 
         String userName = player.getName();
         String targetUserName = targetPlayer.getName();
@@ -64,7 +70,7 @@ public class ClanKickSubCommand implements SubCommand, Utility {
             if (playerRepository.getPlayerGroup(userName) >= permissionForKick){
                 if (!targetUserName.equalsIgnoreCase(userName)){
                     if (args.length <= 2){
-                        playerRepository.deletePlayer(userName, targetUserName);
+                        playerRepository.deletePlayer(clanName, targetPlayer);
                         targetPlayer.sendMessage(color(youKickedFromClanMessage));
                         sendMessageEveryone(clanName, playerKickedMessage, targetUserName);
                     }else {

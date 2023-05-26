@@ -8,9 +8,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.clanmenu.ClanMenu;
+import org.dokat.systemclans.clan_menu.ClanMenu;
 import org.dokat.systemclans.commands.subcommands.*;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.jetbrains.annotations.NotNull;
 

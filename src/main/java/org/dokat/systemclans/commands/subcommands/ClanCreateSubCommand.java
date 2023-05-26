@@ -29,7 +29,7 @@ public class ClanCreateSubCommand implements SubCommand, Utility {
             if (args.length == 1){
                 String clanName = args[0].toUpperCase();
                 if (clanName.length() == clanNameLength && clanRepository.isClanNameNotFound(clanName)){
-                    clanRepository.createClan(clanName);
+                    clanRepository.createClan(clanName, player);
                     player.sendMessage(color(config.getMessages("clan_created").replace("{clanName}", clanName)));
                 }else {
                     player.sendMessage(color(clanNameFailed));

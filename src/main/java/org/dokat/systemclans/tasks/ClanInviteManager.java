@@ -91,7 +91,7 @@ public class ClanInviteManager implements Utility {
             PlayerRepository playerRepository = new PlayerRepository(connection);
 
             String clanName = clanRepository.getClanName(sender.getName());
-            playerRepository.savePlayer(player.getName(), clanName, 0);
+            playerRepository.savePlayer(player, clanName, 0);
 
             sendMessageEveryone(clanName, playerAdded.replace("{targetUserName}", targetName), targetName);
 

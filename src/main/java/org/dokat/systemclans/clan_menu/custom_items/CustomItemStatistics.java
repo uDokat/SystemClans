@@ -1,10 +1,9 @@
-package org.dokat.systemclans.clanmenu.customitems;
+package org.dokat.systemclans.clan_menu.custom_items;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.cache.ClanStatusCache;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 

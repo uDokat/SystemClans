@@ -1,4 +1,4 @@
-package org.dokat.systemclans.clanmenu.customitems;
+package org.dokat.systemclans.clan_menu.custom_items;
 
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;

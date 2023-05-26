@@ -37,12 +37,12 @@ public class ClanRenameSubCommand implements SubCommand, Utility {
         if (clanName != null){
             if (args.length == 1){
                 String newClanName = args[0].toUpperCase();
-                if (newClanName.length() == 3 && clanRepository.isClanNameNotFound(clanName)){
+                if (newClanName.length() == 3 && clanRepository.isClanNameNotFound(newClanName)){
                     if (playerRepository.getPlayerGroup(userName) >= permissionForRename){
                         if (clanRepository.getClanBalance() >= priceRename){
                             clanRepository.setClanBalance(clanName, priceRename);
                             clanRepository.setClanName(clanName, newClanName);
-                            sendMessageEveryone(clanName, clanRenamed.replace("{newClanName}", newClanName), null);
+                            sendMessageEveryone(newClanName, clanRenamed.replace("{newClanName}", newClanName), null);
                         }else {
                             player.sendMessage(color(notEnoughMoney));
                         }

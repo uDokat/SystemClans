@@ -1,9 +1,9 @@
-package org.dokat.systemclans.clanmenu;
+package org.dokat.systemclans.clan_menu;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.clanmenu.customitems.CustomItemStatistics;
+import org.dokat.systemclans.clan_menu.custom_items.CustomItemStatistics;
 import org.jetbrains.annotations.NotNull;
 
 public class ClanMenu implements InventoryHolder {

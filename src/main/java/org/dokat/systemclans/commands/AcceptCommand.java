@@ -20,7 +20,7 @@ public class AcceptCommand implements CommandExecutor{
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         Player player = (Player) sender;
 
-        if (args.length == 1){
+        if (args.length == 0){
             clanInviteManager.acceptInvite(player);
         }
 

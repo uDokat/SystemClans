@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ public interface Utility {
     }
 
     default void sendMessageEveryone(String clanName, String message, String targetName){
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), "");
+        PlayerRepository playerRepository = new PlayerRepository(SystemClans.getConnection());
 
-        List<String> players = clanRepository.getAllPlayersForClanName(clanName);
+        List<String> players = playerRepository.getAllPlayersForClanName(clanName);
 
         for (String p : players){
             Player player = Bukkit.getPlayer(p);
