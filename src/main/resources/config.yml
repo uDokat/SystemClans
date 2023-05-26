@@ -9,7 +9,7 @@ messages:
   player_kicked_cause: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName} &aпо причине: &6{cause}"
   player_kicked: "&aИгрок&c {targetUserName} &aбыл кикнут игроком &c{userName}"
   player_already_has_invite: "&aИгрок уже имеет приглашеине"
-  player_not_respond_invitation: "&c{targetUserName} &a не ответил на приглашение"
+  player_not_respond_invitation: "&c{targetUserName} &aне ответил на приглашение"
   player_invites_to_clan: "&aИгрок &c{userName} &aприглашает тебя в клан &6&l{clanName}"
   player_accepted_invitation: "&aИгрок &c{targetUserName} &aпринял приглашение"
 

@@ -1,15 +1,21 @@
 package org.dokat.systemclans;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.AcceptCommand;
+import org.dokat.systemclans.commands.ClanChat;
 import org.dokat.systemclans.commands.ClanCommand;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
+import org.dokat.systemclans.events.PlayerJoinListener;
 import org.dokat.systemclans.tasks.ClanInviteManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public final class SystemClans extends JavaPlugin {
 
@@ -18,10 +24,10 @@ public final class SystemClans extends JavaPlugin {
     private static Connection connection;
     private DatabaseConnection databaseConnection;
     private static ClanInviteManager clanInviteManager;
+    private static HashMap<String, ArrayList<Player>> playersInClan;
 
     @Override
     public void onEnable() {
-        instance = this;
         saveDefaultConfig();
 
         databaseConnection = new JdbcDatabaseConnection("jdbc:mysql://localhost:3306/clans","root", "root");
@@ -31,10 +37,15 @@ public final class SystemClans extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        instance = this;
+        playersInClan = new HashMap<>();
         clanInviteManager = new ClanInviteManager();
 
         new ClanCommand();
+        new ClanChat();
         new AcceptCommand();
+
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
     }
 
     @Override
@@ -84,6 +95,13 @@ public final class SystemClans extends JavaPlugin {
                 "clan_id INT," +
                 "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
                 ")");
+    }
+
+    public static HashMap<String, ArrayList<Player>> getPlayersInClan() {
+        return playersInClan;
+    }
+    public static void setPlayersInClan(String clanName, ArrayList<Player> players){
+        playersInClan.put(clanName, players);
     }
 
     public static ClanInviteManager getClanInviteManager(){

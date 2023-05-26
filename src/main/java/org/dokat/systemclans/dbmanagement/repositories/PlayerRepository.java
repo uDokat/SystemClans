@@ -1,6 +1,11 @@
 package org.dokat.systemclans.dbmanagement.repositories;
 
+import org.bukkit.entity.Player;
+import org.dokat.systemclans.SystemClans;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlayerRepository {
 
@@ -12,32 +17,35 @@ public class PlayerRepository {
 
     //убрал синхр
 
-    public void savePlayer(String userName, String clanName, int group){
+    public void savePlayer(Player player, String clanName, int group){
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, clan_id) VALUES (?, ?, ?, ?)")) {
 
             ClanRepository repository = new ClanRepository(connection, "");
             int clanID = repository.getClanIdByName(clanName);
 
-            preparedStatement.setString(1, userName);
+            preparedStatement.setString(1, player.getName());
             preparedStatement.setString(2, clanName);
             preparedStatement.setInt(3, group);
             preparedStatement.setInt(4, clanID);
             preparedStatement.executeUpdate();
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) + 1);
+            SystemClans.getPlayersInClan().get(clanName).add(player);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void deletePlayer(String clanName, String deleteName){
+    public void deletePlayer(String clanName, Player deletePlayer){
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM players WHERE user_name = ?")) {
-            preparedStatement.setString(1, deleteName);
+            preparedStatement.setString(1, deletePlayer.getName());
             preparedStatement.executeUpdate();
 
             ClanRepository repository = new ClanRepository(connection, "");
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) - 1);
+            ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
+            players.remove(deletePlayer);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -71,6 +79,23 @@ public class PlayerRepository {
             preparedStatement.setInt(3, claId);
             preparedStatement.executeUpdate();
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<String> getAllPlayersForClanName(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT user_name FROM players WHERE clan_name = ?")) {
+            preparedStatement.setString(1, clanName);
+
+            List<String> list = new ArrayList<>();
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                list.add(resultSet.getString("user_name"));
+            }
+
+            return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
