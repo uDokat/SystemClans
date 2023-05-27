@@ -10,8 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashMap;
 
 public class ClanRepository {
 
@@ -38,6 +37,9 @@ public class ClanRepository {
 
             PlayerRepository repository = new PlayerRepository(connection);
             repository.savePlayer(player, clanName, 2);
+
+            SystemClans.getStatusPvp().put(clanName, true);
+            SystemClans.getIsSameClan().put(player, clanName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +64,15 @@ public class ClanRepository {
             preparedStatementClan.setInt(1, clanId);
             preparedStatementClan.executeUpdate();
 
+
+            ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
+            for (Player player : players){
+                SystemClans.getIsSameClan().remove(player);
+            }
+
             SystemClans.getPlayersInClan().remove(clanName);
+            SystemClans.getStatusPvp().remove(clanName);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -132,6 +142,17 @@ public class ClanRepository {
             preparedStatementPlayer.setString(1, newClanName);
             preparedStatementPlayer.setInt(2, clanId);
             preparedStatementPlayer.executeUpdate();
+
+            ArrayList<Player> players2 = SystemClans.getPlayersInClan().get(clanName);
+            HashMap<Player, String> isSameClan = SystemClans.getIsSameClan();
+
+            for (Player player : players2){
+                isSameClan.remove(player);
+                isSameClan.put(player, newClanName);
+            }
+
+            boolean statusPvp = SystemClans.getStatusPvp().remove(clanName);
+            SystemClans.getStatusPvp().put(newClanName, statusPvp);
 
             ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
             SystemClans.getPlayersInClan().remove(clanName);
@@ -286,8 +307,8 @@ public class ClanRepository {
     }
 
     public String getWelcomeMessage(String clanName) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT welcome_massage FROM clans WHERE clan_name = ?")) {
-            preparedStatement.setString(1, clanName);
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT welcome_massage FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
@@ -309,6 +330,49 @@ public class ClanRepository {
             preparedStatement.setString(1, welcomeMessage);
             preparedStatement.setInt(2, clanId);
             preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean getStatusPvp(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pvp FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getBoolean("pvp");
+            }else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setStatusPvp(String clanName, boolean statusPvp){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET pvp = ? WHERE id = ?")) {
+            preparedStatement.setBoolean(1, statusPvp);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
+            preparedStatement.executeUpdate();
+
+            SystemClans.getStatusPvp().remove(clanName);
+            SystemClans.getStatusPvp().put(clanName, statusPvp);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addStatusPvpInMap(){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pvp, clan_name FROM clans")) {
+            HashMap<String, Boolean> statusPvp = SystemClans.getStatusPvp();
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                statusPvp.put(resultSet.getString("clan_name"), resultSet.getBoolean("pvp"));
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

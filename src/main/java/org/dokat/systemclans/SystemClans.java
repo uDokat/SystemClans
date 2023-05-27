@@ -7,6 +7,8 @@ import org.dokat.systemclans.commands.ClanChat;
 import org.dokat.systemclans.commands.ClanCommand;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
+import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.events.PlayerAttackListener;
 import org.dokat.systemclans.events.PlayerJoinListener;
 import org.dokat.systemclans.tasks.ClanInviteManager;
 
@@ -22,15 +24,16 @@ public final class SystemClans extends JavaPlugin {
     private static SystemClans instance;
 
     private static Connection connection;
-    private DatabaseConnection databaseConnection;
     private static ClanInviteManager clanInviteManager;
     private static HashMap<String, ArrayList<Player>> playersInClan;
+    private static HashMap<String, Boolean> statusPvp;
+    private static HashMap<Player, String> isSameClan;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
-        databaseConnection = new JdbcDatabaseConnection("jdbc:mysql://localhost:3306/clans","root", "root");
+        DatabaseConnection databaseConnection = new JdbcDatabaseConnection("jdbc:mysql://localhost:3306/clans", "root", "root");
         try {
             connection = databaseConnection.getConnection();
         } catch (SQLException e) {
@@ -39,13 +42,19 @@ public final class SystemClans extends JavaPlugin {
 
         instance = this;
         playersInClan = new HashMap<>();
+        statusPvp = new HashMap<>();
+        isSameClan = new HashMap<>();
         clanInviteManager = new ClanInviteManager();
+
+        ClanRepository repository = new ClanRepository(connection, "");
+        repository.addStatusPvpInMap();
 
         new ClanCommand();
         new ClanChat();
         new AcceptCommand();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
     }
 
     @Override
@@ -100,8 +109,13 @@ public final class SystemClans extends JavaPlugin {
     public static HashMap<String, ArrayList<Player>> getPlayersInClan() {
         return playersInClan;
     }
+
     public static void setPlayersInClan(String clanName, ArrayList<Player> players){
         playersInClan.put(clanName, players);
+    }
+
+    public static HashMap<String, Boolean> getStatusPvp() {
+        return statusPvp;
     }
 
     public static ClanInviteManager getClanInviteManager(){
@@ -114,5 +128,9 @@ public final class SystemClans extends JavaPlugin {
 
     public static SystemClans getInstance() {
         return instance;
+    }
+
+    public static HashMap<Player, String> getIsSameClan() {
+        return isSameClan;
     }
 }

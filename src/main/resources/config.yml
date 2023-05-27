@@ -13,6 +13,9 @@ messages:
   player_invites_to_clan: "&aИгрок &c{userName} &aприглашает тебя в клан &6&l{clanName}"
   player_accepted_invitation: "&aИгрок &c{targetUserName} &aпринял приглашение"
 
+  pvp_disabled: "&aПвп между товарищами было отключено"
+  pvp_enabled: "&aПвп между товарищами было включено"
+
   invitation_sent_to_player: "&aПриглашение отправлено игроку &c{targetUserName}"
 
   permission_betrayed: "&aЛидерство перенадо игроку &c{targetUserName}"
@@ -77,3 +80,4 @@ clan_settings:
   permission_for_set_welcome_message: 2
   permission_for_rename: 2
   permission_for_delete: 2
+  permission_for_set_pvp: 2

@@ -38,6 +38,7 @@ public class ClanCommand implements CommandExecutor {
         subCommands.put("home", new ClanHomeSubCommand());
         subCommands.put("sethome", new ClanSetHomeSubCommand());
         subCommands.put("leave", new ClanLeaveSubCommand());
+        subCommands.put("pvp", new ClanPvpSubCommand());
     }
 
     @Override

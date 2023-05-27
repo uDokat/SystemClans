@@ -38,4 +38,16 @@ public class PlayerJoinListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void addPlayerData(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+        String userName = player.getName();
+
+        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), "");
+
+        if (!SystemClans.getIsSameClan().containsKey(player) && clanRepository.getClanName(userName) != null){
+            SystemClans.getIsSameClan().put(player, clanRepository.getClanName(userName));
+        }
+    }
 }

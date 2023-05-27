@@ -31,6 +31,8 @@ public class PlayerRepository {
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) + 1);
             SystemClans.getPlayersInClan().get(clanName).add(player);
+
+            SystemClans.getIsSameClan().put(player, clanName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -46,6 +48,8 @@ public class PlayerRepository {
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) - 1);
             ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
             players.remove(deletePlayer);
+
+            SystemClans.getIsSameClan().remove(deletePlayer);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
