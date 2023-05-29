@@ -3,6 +3,7 @@ package org.dokat.systemclans.dbmanagement.repositories;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 
 import java.sql.Connection;
@@ -16,6 +17,9 @@ public class ClanRepository {
 
     private Connection connection;
     private String userName;
+    private final ConfigManager config = new ConfigManager();
+    private final int amountReputation = config.getClanSettings("amount_reputation_for_kills");
+    private final int amountKills = config.getClanSettings("reputation_for_amount_kills");
 
     public ClanRepository(Connection connection, String userName) {
         this.connection = connection;
@@ -94,7 +98,7 @@ public class ClanRepository {
         return false;
     }
 
-    public int getClanIdByName(String clanName) throws SQLException {
+    public int getClanIdByName(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM clans WHERE clan_name = ?")) {
             preparedStatement.setString(1, clanName);
 
@@ -107,6 +111,8 @@ public class ClanRepository {
             resultSet.close();
 
             return clanId;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -373,6 +379,67 @@ public class ClanRepository {
             while (resultSet.next()){
                 statusPvp.put(resultSet.getString("clan_name"), resultSet.getBoolean("pvp"));
             }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getAmountKillings(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT killings FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getInt("killings");
+            }else {
+                resultSet.close();
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addAmountKillings(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET killings = ? WHERE id = ?")) {
+
+            preparedStatement.setInt(1,  getAmountKillings(clanName) + 1);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
+            preparedStatement.executeUpdate();
+
+            if (getAmountKillings(clanName) % amountKills == 0){
+                setReputation(clanName, getReputation(clanName) + amountReputation);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getReputation(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT reputation FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getInt("reputation");
+            }else {
+                resultSet.close();
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setReputation(String clanName, int reputation){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET reputation = ? WHERE id = ?")) {
+            preparedStatement.setInt(1, reputation);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

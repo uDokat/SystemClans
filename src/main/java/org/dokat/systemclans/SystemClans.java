@@ -5,10 +5,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.AcceptCommand;
 import org.dokat.systemclans.commands.ClanChat;
 import org.dokat.systemclans.commands.ClanCommand;
+import org.dokat.systemclans.commands.TestCommand;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.events.PlayerAttackListener;
+import org.dokat.systemclans.events.PlayerDeathListener;
 import org.dokat.systemclans.events.PlayerJoinListener;
 import org.dokat.systemclans.tasks.ClanInviteManager;
 
@@ -52,9 +54,11 @@ public final class SystemClans extends JavaPlugin {
         new ClanCommand();
         new ClanChat();
         new AcceptCommand();
+        new TestCommand();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
     }
 
     @Override
@@ -77,7 +81,9 @@ public final class SystemClans extends JavaPlugin {
                 "balance INT," +
                 "amount_player INT," +
                 "welcome_massage VARCHAR(255)," +
-                "pvp TINYINT" +
+                "pvp TINYINT," +
+                "killings INT DEFAULT 0," +
+                "reputation INT DEFAULT 0" +
                 ")");
     }
 
@@ -88,6 +94,7 @@ public final class SystemClans extends JavaPlugin {
                 "user_name VARCHAR(225)," +
                 "clan_name VARCHAR(255)," +
                 "`group` INT," +
+                "killings INT DEFAULT 0," +
                 "clan_id INT," +
                 "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
                 ")");

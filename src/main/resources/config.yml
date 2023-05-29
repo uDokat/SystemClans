@@ -81,3 +81,8 @@ clan_settings:
   permission_for_rename: 2
   permission_for_delete: 2
   permission_for_set_pvp: 2
+
+# Кол-во репутации за количество убийств (стоит int)
+  amount_reputation_for_kills: 1
+# За каждый десятый килл + репутация
+  reputation_for_amount_kills: 10

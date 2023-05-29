@@ -114,4 +114,32 @@ public class PlayerRepository {
             return "OWN";
         }
     }
+
+    public int getAmountKills(String userName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT killings FROM players WHERE user_name = ?")) {
+            preparedStatement.setString(1, userName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getInt("killings");
+            }else {
+                resultSet.close();
+                return 0;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addAmountKills(String userName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET killings = ? WHERE user_name = ?")) {
+            preparedStatement.setInt(1, getAmountKills(userName) + 1);
+            preparedStatement.setString(2, userName);
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
