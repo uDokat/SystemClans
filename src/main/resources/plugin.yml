@@ -3,7 +3,9 @@ version: '${project.version}'
 main: org.dokat.systemclans.SystemClans
 api-version: 1.18
 authors: [ Dokat ]
+depends: [Vault, EssentialsX]
 commands:
+  b:
   accept:
   clanchat:
     aliases: [cc]
