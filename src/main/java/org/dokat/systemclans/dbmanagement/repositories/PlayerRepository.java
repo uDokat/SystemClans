@@ -4,6 +4,8 @@ import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,15 +20,19 @@ public class PlayerRepository {
     //убрал синхр
 
     public void savePlayer(Player player, String clanName, int group){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, clan_id) VALUES (?, ?, ?, ?)")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, date_add, clan_id) VALUES (?, ?, ?, ?, ?)")) {
 
             ClanRepository repository = new ClanRepository(connection, "");
             int clanID = repository.getClanIdByName(clanName);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String time = localDateTime.format(formatter);
 
             preparedStatement.setString(1, player.getName());
             preparedStatement.setString(2, clanName);
             preparedStatement.setInt(3, group);
-            preparedStatement.setInt(4, clanID);
+            preparedStatement.setString(4, time);
+            preparedStatement.setInt(5, clanID);
             preparedStatement.executeUpdate();
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) + 1);
@@ -137,6 +143,22 @@ public class PlayerRepository {
             preparedStatement.setInt(1, getAmountKills(userName) + 1);
             preparedStatement.setString(2, userName);
             preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getDateAdd(String userName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT date_add FROM players WHERE user_name = ?")) {
+            preparedStatement.setString(1, userName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("date_add");
+            }else {
+                return "";
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

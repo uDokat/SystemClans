@@ -49,7 +49,20 @@ messages:
   welcome_failed: "&cПриветственное сообщение не было указано"
 
 
-color_messages:
+color_settings:
+  menu:
+    menu_color: "&a"
+    name_color: "&c"
+    time_color: "&6"
+    clan_name_color: "&6&l"
+    clan_rep_color: "&6"
+    clan_level_color: "&c"
+    clan_amount_kills_color: "&c"
+    clan_amount_player_color: "&6"
+    clan_balance_color: "&6"
+    player_group_color: "&c"
+    navigation_color: "&e"
+
 
 clan_settings:
 # Длинна имени клана

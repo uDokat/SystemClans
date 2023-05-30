@@ -3,7 +3,7 @@ package org.dokat.systemclans.commands;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.tasks.ClanInviteManager;
+import org.dokat.systemclans.management.ClanInviteManager;
 import org.jetbrains.annotations.NotNull;
 
 public class AcceptCommand implements CommandExecutor{

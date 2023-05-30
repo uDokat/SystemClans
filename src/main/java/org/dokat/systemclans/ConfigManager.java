@@ -9,4 +9,8 @@ public class ConfigManager {
     public int getClanSettings(String nav){
         return SystemClans.getInstance().getConfig().getInt("clan_settings." + nav);
     }
+
+    public String getColorMenu(String nav){
+        return SystemClans.getInstance().getConfig().getString("color_settings.menu." + nav);
+    }
 }

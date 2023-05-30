@@ -9,17 +9,14 @@ import org.dokat.systemclans.commands.TestCommand;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
-import org.dokat.systemclans.events.PlayerAttackListener;
-import org.dokat.systemclans.events.PlayerDeathListener;
-import org.dokat.systemclans.events.PlayerJoinListener;
-import org.dokat.systemclans.tasks.ClanInviteManager;
+import org.dokat.systemclans.events.*;
+import org.dokat.systemclans.management.ClanInviteManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public final class SystemClans extends JavaPlugin {
 
@@ -38,6 +35,9 @@ public final class SystemClans extends JavaPlugin {
         DatabaseConnection databaseConnection = new JdbcDatabaseConnection("jdbc:mysql://localhost:3306/clans", "root", "root");
         try {
             connection = databaseConnection.getConnection();
+            createNewClansTable();
+            createNewPlayersTable();
+            createNewClanHomeTable();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -59,6 +59,8 @@ public final class SystemClans extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerSwapListener(), this);
     }
 
     @Override
@@ -83,7 +85,8 @@ public final class SystemClans extends JavaPlugin {
                 "welcome_massage VARCHAR(255)," +
                 "pvp TINYINT," +
                 "killings INT DEFAULT 0," +
-                "reputation INT DEFAULT 0" +
+                "reputation INT DEFAULT 0," +
+                "date_create VARCHAR(50)" +
                 ")");
     }
 
@@ -96,6 +99,7 @@ public final class SystemClans extends JavaPlugin {
                 "`group` INT," +
                 "killings INT DEFAULT 0," +
                 "clan_id INT," +
+                "date_add VARCHAR(50)," +
                 "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
                 ")");
     }

@@ -1,4 +1,4 @@
-package org.dokat.systemclans.chat_managment;
+package org.dokat.systemclans.management;
 
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;

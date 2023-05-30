@@ -1,4 +1,4 @@
-package org.dokat.systemclans.tasks;
+package org.dokat.systemclans.management;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

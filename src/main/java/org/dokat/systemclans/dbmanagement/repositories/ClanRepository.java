@@ -10,6 +10,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,11 +32,15 @@ public class ClanRepository {
     //убрал синхр.
 
     public void createClan(String clanName, Player player){
-        try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player) VALUES (?, ?, ?, ?)")) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player, date_create) VALUES (?, ?, ?, ?, ?)")) {
             preparedStatement.setString(1, clanName);
             preparedStatement.setInt(2, 1);
             preparedStatement.setInt(3, 0);
             preparedStatement.setInt(4, 0);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+            LocalDateTime localDateTime = LocalDateTime.now();
+            String time = localDateTime.format(formatter);
+            preparedStatement.setString(5, time);
 
             preparedStatement.executeUpdate();
 
@@ -440,6 +447,22 @@ public class ClanRepository {
             preparedStatement.setInt(1, reputation);
             preparedStatement.setInt(2, getClanIdByName(clanName));
             preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String getDateCreate(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT date_create FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getString("date_create");
+            }else {
+                return "";
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

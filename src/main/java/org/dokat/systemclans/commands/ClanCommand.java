@@ -11,6 +11,7 @@ import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clan_menu.ClanMenu;
 import org.dokat.systemclans.commands.subcommands.*;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -48,13 +49,13 @@ public class ClanCommand implements CommandExecutor {
 
         Connection connection = SystemClans.getConnection();
         ClanRepository clanRepository = new ClanRepository(connection, "");
+        PlayerRepository playerRepository = new PlayerRepository(connection);
 
-        ClanMenu clanMenu = new ClanMenu(userName);
+        ClanMenu clanMenu = new ClanMenu(clanRepository, playerRepository, player);
         ConfigManager config = new ConfigManager();
 
         if (args.length == 0){
             if (clanRepository.getClanName(userName) != null){
-                clanMenu.setItem();
                 player.openInventory(clanMenu.getInventory());
                 return true;
             }else {
