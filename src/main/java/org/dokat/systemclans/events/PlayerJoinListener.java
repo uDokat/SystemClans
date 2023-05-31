@@ -17,7 +17,7 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, "");
+        ClanRepository clanRepository = new ClanRepository(connection);
 
         String clanName = null;
         if (clanRepository.getClanName(player.getName()) != null){
@@ -44,7 +44,7 @@ public class PlayerJoinListener implements Listener {
         Player player = event.getPlayer();
         String userName = player.getName();
 
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), "");
+        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection());
 
         if (!SystemClans.getIsSameClan().containsKey(player) && clanRepository.getClanName(userName) != null){
             SystemClans.getIsSameClan().put(player, clanRepository.getClanName(userName));

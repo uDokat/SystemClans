@@ -40,6 +40,10 @@ public class ClanCommand implements CommandExecutor {
         subCommands.put("sethome", new ClanSetHomeSubCommand());
         subCommands.put("leave", new ClanLeaveSubCommand());
         subCommands.put("pvp", new ClanPvpSubCommand());
+        subCommands.put("levelup", new ClanLevelUpSubCommand());
+        subCommands.put("pay", new ClanPaySubCommand());
+        subCommands.put("take", new ClanTakeSubCommand());
+        subCommands.put("help", new ClanHelpSubCommand());
     }
 
     @Override
@@ -48,7 +52,7 @@ public class ClanCommand implements CommandExecutor {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, "");
+        ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
         ClanMenu clanMenu = new ClanMenu(clanRepository, playerRepository, player);

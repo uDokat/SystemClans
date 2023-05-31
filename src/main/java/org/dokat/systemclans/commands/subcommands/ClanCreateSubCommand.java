@@ -23,7 +23,7 @@ public class ClanCreateSubCommand implements SubCommand, Utility {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanRepository clanRepository = new ClanRepository(connection);
 
         if (clanRepository.getClanName(userName) == null){
             if (args.length == 1){

@@ -22,7 +22,7 @@ public class PlayerRepository {
     public void savePlayer(Player player, String clanName, int group){
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, date_add, clan_id) VALUES (?, ?, ?, ?, ?)")) {
 
-            ClanRepository repository = new ClanRepository(connection, "");
+            ClanRepository repository = new ClanRepository(connection);
             int clanID = repository.getClanIdByName(clanName);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
             LocalDateTime localDateTime = LocalDateTime.now();
@@ -49,7 +49,7 @@ public class PlayerRepository {
             preparedStatement.setString(1, deletePlayer.getName());
             preparedStatement.executeUpdate();
 
-            ClanRepository repository = new ClanRepository(connection, "");
+            ClanRepository repository = new ClanRepository(connection);
 
             repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) - 1);
             ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
@@ -81,7 +81,7 @@ public class PlayerRepository {
     public void setPlayerGroup(String userName, int group){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET `group` = ? WHERE user_name = ? AND clan_id = ?")) {
 
-            ClanRepository repository = new ClanRepository(connection, userName);
+            ClanRepository repository = new ClanRepository(connection);
             int claId =  repository.getClanIdByName(repository.getClanName(userName));
 
             preparedStatement.setInt(1, group);

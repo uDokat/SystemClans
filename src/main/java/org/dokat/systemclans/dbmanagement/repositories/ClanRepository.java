@@ -19,14 +19,13 @@ import java.util.HashMap;
 public class ClanRepository {
 
     private Connection connection;
-    private String userName;
     private final ConfigManager config = new ConfigManager();
     private final int amountReputation = config.getClanSettings("amount_reputation_for_kills");
     private final int amountKills = config.getClanSettings("reputation_for_amount_kills");
 
-    public ClanRepository(Connection connection, String userName) {
+    public ClanRepository(Connection connection) {
         this.connection = connection;
-        this.userName = userName;
+
     }
 
     //убрал синхр.
@@ -34,9 +33,10 @@ public class ClanRepository {
     public void createClan(String clanName, Player player){
         try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player, date_create) VALUES (?, ?, ?, ?, ?)")) {
             preparedStatement.setString(1, clanName);
-            preparedStatement.setInt(2, 1);
+            preparedStatement.setInt(2, 0);
             preparedStatement.setInt(3, 0);
             preparedStatement.setInt(4, 0);
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
             LocalDateTime localDateTime = LocalDateTime.now();
             String time = localDateTime.format(formatter);
@@ -192,13 +192,20 @@ public class ClanRepository {
         }
     }
 
-    public void setClanLevel(String clanName, int clanLevel){
+    public void setClanLevel(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET level = ? WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanLevel(clanName) + 1);
+            preparedStatement.setInt(2, getClanIdByName(clanName));
+            preparedStatement.executeUpdate();
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public int getClanBalance(){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM clans WHERE clan_name = ?")) {
-            preparedStatement.setString(1, getClanName(userName));
+    public int getClanBalance(String clanName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM clans WHERE id = ?")) {
+            preparedStatement.setInt(1, getClanIdByName(clanName));
 
             int balance = 0;
 
@@ -216,7 +223,7 @@ public class ClanRepository {
 
     public void setClanBalance(String clanName, int amount){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET balance = ? WHERE id = ?")) {
-            preparedStatement.setInt(1, getClanBalance() - amount);
+            preparedStatement.setInt(1, amount);
             preparedStatement.setInt(2, getClanIdByName(clanName));
             preparedStatement.executeUpdate();
 

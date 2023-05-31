@@ -13,7 +13,7 @@ import java.sql.Connection;
 public class PlayerDeathListener implements Listener {
 
     private final Connection connection = SystemClans.getConnection();
-    private final ClanRepository clanRepository = new ClanRepository(connection, "");
+    private final ClanRepository clanRepository = new ClanRepository(connection);
     private final PlayerRepository playerRepository = new PlayerRepository(connection);
 
     @EventHandler

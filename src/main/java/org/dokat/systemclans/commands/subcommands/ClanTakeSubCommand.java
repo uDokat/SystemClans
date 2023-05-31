@@ -6,20 +6,21 @@ import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.management.PlayerBalanceManager;
 import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
 
-public class ClanPvpSubCommand implements SubCommand, Utility {
+public class ClanTakeSubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
-    private final int permissionForSetPvp = config.getClanSettings("permission_for_set_pvp");
-    private final String pvpDisabled = config.getMessages("pvp_disabled");
-    private final String pvpEnabled = config.getMessages("pvp_enabled");
+    private final int permissionForTake = config.getClanSettings("permission_for_take");
+    private final String take = config.getMessages("clan_take");
+    private final String takeFailed = config.getMessages("clan_take_failed");
     private final String commandFailed = config.getMessages("command_failed");
     private final String lackOfRights = config.getMessages("lack_of_rights");
     private final String notClan = config.getMessages("not_clan");
-
+    private final String zeroCannotOutput = config.getMessages("zero_cannot_output");
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
@@ -32,16 +33,22 @@ public class ClanPvpSubCommand implements SubCommand, Utility {
 
         String clanName = clanRepository.getClanName(userName);
 
-        boolean statusPvp = args[0].equalsIgnoreCase("on");
+        PlayerBalanceManager balanceManager = new PlayerBalanceManager();
 
         if (clanName != null){
-            if (playerRepository.getPlayerGroup(userName) >= permissionForSetPvp){
-                if (args.length == 1 && args[0].equalsIgnoreCase("on") || args[0].equalsIgnoreCase("off")){
-                    clanRepository.setStatusPvp(clanName, statusPvp);
-                    if (statusPvp){
-                        sendMessageEveryone(clanName, pvpEnabled, null);
+            if (playerRepository.getPlayerGroup(userName) >= permissionForTake){
+                if (args.length == 1){
+                    int amount = Integer.parseInt(args[0]);
+                    if (amount <= clanRepository.getClanBalance(clanName)){
+                        if (amount > 0){
+                            clanRepository.setClanBalance(clanName, clanRepository.getClanBalance(clanName)-amount);
+                            balanceManager.addBalance(player, amount);
+                            sendMessageEveryone(clanName, take.replace("{userName}", userName).replace("{amount}", String.valueOf(amount)), null);
+                        }else {
+                            player.sendMessage(color(zeroCannotOutput));
+                        }
                     }else {
-                        sendMessageEveryone(clanName, pvpDisabled, null);
+                        player.sendMessage(color(takeFailed));
                     }
                 }else {
                     player.sendMessage(color(commandFailed));

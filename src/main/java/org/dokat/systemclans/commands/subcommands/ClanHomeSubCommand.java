@@ -22,7 +22,7 @@ public class ClanHomeSubCommand implements SubCommand, Utility {
 
         Connection connection = SystemClans.getConnection();
 
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanRepository clanRepository = new ClanRepository(connection);
 
         String clanName = clanRepository.getClanName(userName);
 

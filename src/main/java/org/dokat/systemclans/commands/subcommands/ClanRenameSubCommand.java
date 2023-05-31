@@ -28,7 +28,7 @@ public class ClanRenameSubCommand implements SubCommand, Utility {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanRepository clanRepository = new ClanRepository(connection);
 
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
@@ -39,7 +39,7 @@ public class ClanRenameSubCommand implements SubCommand, Utility {
                 String newClanName = args[0].toUpperCase();
                 if (newClanName.length() == 3 && clanRepository.isClanNameNotFound(newClanName)){
                     if (playerRepository.getPlayerGroup(userName) >= permissionForRename){
-                        if (clanRepository.getClanBalance() >= priceRename){
+                        if (clanRepository.getClanBalance(clanName) >= priceRename){
                             clanRepository.setClanBalance(clanName, priceRename);
                             clanRepository.setClanName(clanName, newClanName);
                             sendMessageEveryone(newClanName, clanRenamed.replace("{newClanName}", newClanName), null);

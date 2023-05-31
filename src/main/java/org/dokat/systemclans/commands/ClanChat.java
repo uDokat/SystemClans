@@ -26,7 +26,7 @@ public class ClanChat implements CommandExecutor, Utility {
         if (args.length > 0){
             String message = String.join(" ", args);
 
-            ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), "");
+            ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection());
             ClanChatManager chatManager = new ClanChatManager();
 
             chatManager.sendClanChatMessage(clanRepository.getClanName(player.getName()), player, message);

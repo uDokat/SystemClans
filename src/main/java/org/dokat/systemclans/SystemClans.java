@@ -5,7 +5,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.AcceptCommand;
 import org.dokat.systemclans.commands.ClanChat;
 import org.dokat.systemclans.commands.ClanCommand;
-import org.dokat.systemclans.commands.TestCommand;
 import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
 import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
@@ -48,13 +47,12 @@ public final class SystemClans extends JavaPlugin {
         isSameClan = new HashMap<>();
         clanInviteManager = new ClanInviteManager();
 
-        ClanRepository repository = new ClanRepository(connection, "");
+        ClanRepository repository = new ClanRepository(connection);
         repository.addStatusPvpInMap();
 
         new ClanCommand();
         new ClanChat();
         new AcceptCommand();
-        new TestCommand();
 
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);

@@ -24,6 +24,7 @@ messages:
   you_kicked_from_clan_cause: "&aТы был кикнут из клана игроком &c{userName} &aпо причине: &6{cause}"
   you_kicked_from_clan: "&aТы был кикнут из клана игроком &c{userName}"
   you_dont_have_invitations: "&cУ тебя нет активных пришлашений"
+  you_dont_have_money: "&cНа балансе недостаточно средств"
 
   lack_of_rights: "&cУ тебя недостаточно прав на использование данной команды"
 
@@ -35,6 +36,15 @@ messages:
   clan_home_created: "&aХом клана успешно создан"
   clan_leave: "&aИгрок &c{userName} &aпокинул клан"
   clan_leave_failed: "&cЛидер клана не может покинуть клан"
+  clan_up_level_failed: "&cВ казне недостаточно средсв"
+  clan_up_level: "&aУровень клана был повышен"
+  clan_max_level: "&cУровень клана повышен до максимального уровня"
+  clan_pay: "&aИгрок &c{userName} &aвнёс в казну &6{amount}$"
+  clan_pay_failed: "&cКазна не может вместить такую сумму"
+  clan_take: "&aИгрок &c{userName} &aвзял из казны &6{amount}$"
+  clan_take_failed: "&cВ казне недостаточно средств"
+
+  zero_cannot_output: "&cСлишком маленькая сумма"
 
   command_failed: "&cКоманда была введена не правильно"
 
@@ -47,6 +57,25 @@ messages:
 
   welcome_message_created: "&aПриветственное сообщение было обновлено"
   welcome_failed: "&cПриветственное сообщение не было указано"
+
+  command_help: "
+  &c/clan &a- Открыть меню клана \n
+  &c/cc &a - Клановый чат \n
+  &c/clan create <name> &a- Создать клан \n
+  &c/clan add <nick> &a- Добавить игрока в клан \n
+  &c/clan kick <nick> &a- Кикнуть игрока из клана \n
+  &c/clan delete &a- Удалить клан \n
+  &c/clan leave &a- Покинуть клан \n
+  &c/clan setleader <nikc> &a- Передать лидерство \n
+  &c/clan sethome &a- Установить хом клана \n
+  &c/clan home &a- Телепортироваться на клан хом \n
+  &c/clan levelup &a- Повысить уровень клана \n
+  &c/clan pay <sum> &a- Положить деньги в казну клана \n
+  &c/clan take <sum> &a- Снять деньги с казны клана \n
+  &c/clan pvp <on/off> &a- Вкл/Выкл пвп между кланом \n
+  &c/clan rename <name> &a- Переименовать клан \n
+  &c/clan rank <name> <up/down> &a- Повысить ранг участника клана \n
+  &c/clan welcome <message> &a- Обновить приветственное сообщение"
 
 
 color_settings:
@@ -94,6 +123,8 @@ clan_settings:
   permission_for_rename: 2
   permission_for_delete: 2
   permission_for_set_pvp: 2
+  permission_for_up_level: 2
+  permission_for_take: 2
 
 # Кол-во репутации за количество убийств (стоит int)
   amount_reputation_for_kills: 1

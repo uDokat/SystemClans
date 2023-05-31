@@ -39,7 +39,7 @@ public class ClanKickSubCommand implements SubCommand, Utility {
         String targetUserName = targetPlayer.getName();
 
         Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection, "");
+        ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
         String playerKickedMessage;

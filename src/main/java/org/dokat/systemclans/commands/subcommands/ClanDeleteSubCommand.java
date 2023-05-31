@@ -27,7 +27,7 @@ public class ClanDeleteSubCommand implements SubCommand, Utility {
 
         Connection connection = SystemClans.getConnection();
 
-        ClanRepository clanRepository = new ClanRepository(connection, userName);
+        ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
         if(clanRepository.getClanName(userName) != null){

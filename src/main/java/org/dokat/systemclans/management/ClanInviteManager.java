@@ -45,7 +45,7 @@ public class ClanInviteManager implements Utility {
             return;
         }
 
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection(), "");
+        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection());
 
         // Отправка приглашения
         sender.sendMessage(color(invitationSentToPlayer).replace("{targetUserName}", targetName));
@@ -87,7 +87,7 @@ public class ClanInviteManager implements Utility {
 
             // Сохранение данных в базе данных
             Connection connection = SystemClans.getConnection();
-            ClanRepository clanRepository = new ClanRepository(connection, "");
+            ClanRepository clanRepository = new ClanRepository(connection);
             PlayerRepository playerRepository = new PlayerRepository(connection);
 
             String clanName = clanRepository.getClanName(sender.getName());
