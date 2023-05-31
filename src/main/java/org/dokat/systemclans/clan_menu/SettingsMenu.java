@@ -5,7 +5,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clan_menu.custom_items.ItemNavigation;
 import org.dokat.systemclans.clan_menu.custom_items.ItemPvp;
-import org.jetbrains.annotations.NotNull;
 
 public class SettingsMenu implements InventoryHolder {
     private Inventory inventory;
@@ -25,7 +24,7 @@ public class SettingsMenu implements InventoryHolder {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         return inventory;
     }
 }

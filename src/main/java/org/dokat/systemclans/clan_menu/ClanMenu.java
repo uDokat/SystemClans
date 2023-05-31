@@ -8,7 +8,6 @@ import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clan_menu.custom_items.*;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
-import org.jetbrains.annotations.NotNull;
 
 public class ClanMenu implements InventoryHolder {
 
@@ -38,7 +37,7 @@ public class ClanMenu implements InventoryHolder {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         return this.inventory;
     }
 }

@@ -18,7 +18,7 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void playerDeath(PlayerDeathEvent event){
-        Player player = event.getPlayer();
+        Player player = event.getEntity();
         Player killer = player.getKiller();
 
         if (killer != null && !isClanMember(player, killer)){
