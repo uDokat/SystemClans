@@ -18,17 +18,25 @@ public class JdbcDatabaseConnection implements DatabaseConnection{
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(url, username, password);
+    public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(url, username, password);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return connection;
     }
 
     @Override
-    public void closeConnection(Connection connection) throws SQLException {
-        if (connection != null && !connection.isClosed()){
-            connection.close();
+    public void closeConnection(Connection connection){
+        try {
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

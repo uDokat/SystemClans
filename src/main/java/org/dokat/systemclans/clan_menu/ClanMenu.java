@@ -6,20 +6,13 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clan_menu.custom_items.*;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
-import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.dbmanagement.repositories.*;
 
 public class ClanMenu implements InventoryHolder {
 
     private final Inventory inventory;
-    private final ClanRepository clanRepository;
-    private final PlayerRepository playerRepository;
-    private final Player player;
 
     public ClanMenu(ClanRepository clanRepository, PlayerRepository playerRepository, Player player){
-        this.clanRepository = clanRepository;
-        this.playerRepository = playerRepository;
-        this.player = player;
         this.inventory = SystemClans.getInstance().getServer().createInventory(this, 45, "Меню клана");
 
         ItemStack itemStack = new ItemGlass().createItem();

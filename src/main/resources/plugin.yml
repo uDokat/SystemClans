@@ -3,27 +3,11 @@ version: '${project.version}'
 main: org.dokat.systemclans.SystemClans
 api-version: 1.16
 authors: [ Dokat ]
-depends: [Vault, EssentialsX]
+depends: [Vault, EssentialsX, CombatLib]
 commands:
+  t:
   accept:
   clanchat:
     aliases: [cc]
   clan:
     aliases: [c]
-    subcommands:
-      create:
-      delete:
-      add:
-      kick:
-      leave:
-      sethome:
-      home:
-      welcome:
-      setleader:
-      levelup:
-      pay:
-      take:
-      pvp:
-      rename:
-      rank:
-      help:

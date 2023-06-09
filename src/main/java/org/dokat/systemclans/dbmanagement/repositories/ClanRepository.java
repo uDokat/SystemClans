@@ -11,25 +11,36 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Репозиторий для работы с кланами в базе данных.
+ */
 public class ClanRepository {
 
-    private Connection connection;
+    private final Connection connection;
     private final ConfigManager config = new ConfigManager();
     private final int amountReputation = config.getClanSettings("amount_reputation_for_kills");
     private final int amountKills = config.getClanSettings("reputation_for_amount_kills");
 
+    /**
+     * Конструктор класса ClanRepository.
+     *
+     * @param connection соединение с базой данных
+     */
     public ClanRepository(Connection connection) {
         this.connection = connection;
 
     }
 
-    //убрал синхр.
-
+    /**
+     * Создает новый клан в базе данных и связывает игрока с кланом.
+     *
+     * @param clanName имя клана
+     * @param player   игрок, создающий клан
+     */
     public void createClan(String clanName, Player player){
         try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player, date_create) VALUES (?, ?, ?, ?, ?)")) {
             preparedStatement.setString(1, clanName);
@@ -40,29 +51,40 @@ public class ClanRepository {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
             LocalDateTime localDateTime = LocalDateTime.now();
             String time = localDateTime.format(formatter);
-            preparedStatement.setString(5, time);
 
+            preparedStatement.setString(5, time);
             preparedStatement.executeUpdate();
 
+            //Создаёт новую запись клана в хэшмапе
             SystemClans.setPlayersInClan(clanName, new ArrayList<>());
 
+            //Сохраняет игрока в таблицу players
             PlayerRepository repository = new PlayerRepository(connection);
             repository.savePlayer(player, clanName, 2);
 
+            //Создаёт запись пвп статуса в хэшмапе
             SystemClans.getStatusPvp().put(clanName, true);
-            SystemClans.getIsSameClan().put(player, clanName);
+            //Создаёт запись к какому клану относится игрок
+            SystemClans.getClanNameByPlayer().put(player, clanName);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Удаляет клан из базы данных и освобождает всех игроков, принадлежащих клану.
+     *
+     * @param userName имя игрока, выполняющего удаление клана
+     */
     public void deleteClan(String userName){
         try (PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE id = ?");
              PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_id = ?")) {
 
             String clanName = getClanName(userName);
+            //Получаем id клана
             int clanId = getClanIdByName(clanName);
 
+            //Если у клана есть клановый хом, то удаляет запись о клан хоме
             if (getLocationClanHome(clanName) != null){
                 PreparedStatement preparedStatementHome = connection.prepareStatement("DELETE FROM clan_houses WHERE clan_id = ?");
                 preparedStatementHome.setInt(1, clanId);
@@ -75,13 +97,14 @@ public class ClanRepository {
             preparedStatementClan.setInt(1, clanId);
             preparedStatementClan.executeUpdate();
 
-
+            //Удаляет всех игроков их хэшмапы и саму запись в ней
             ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
             for (Player player : players){
-                SystemClans.getIsSameClan().remove(player);
+                SystemClans.getClanNameByPlayer().remove(player);
             }
 
             SystemClans.getPlayersInClan().remove(clanName);
+            //Удаляет запись о статусе пвп клана
             SystemClans.getStatusPvp().remove(clanName);
 
         } catch (SQLException e) {
@@ -89,6 +112,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Проверяет, существует ли клан с указанным именем.
+     *
+     * @param clanName имя клана
+     * @return true, если клан с указанным именем не найден; в противном случае false
+     */
     public boolean isClanNameNotFound(String clanName){
         try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM clans WHERE clan_name = ?")) {
             statement.setString(1, clanName);
@@ -105,6 +134,12 @@ public class ClanRepository {
         return false;
     }
 
+    /**
+     * Метод для получения идентификатора клана по его названию.
+     *
+     * @param clanName название клана
+     * @return идентификатор клана
+     */
     public int getClanIdByName(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM clans WHERE clan_name = ?")) {
             preparedStatement.setString(1, clanName);
@@ -123,6 +158,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для получения названия клана по имени игрока.
+     *
+     * @param userName имя игрока
+     * @return название клана
+     */
     public String getClanName(String userName){
         try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT clan_name FROM players WHERE user_name = ?")) {
             preparedStatement.setString(1, userName);
@@ -142,6 +183,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для изменения названия клана.
+     *
+     * @param clanName      текущее название клана
+     * @param newClanName   новое название клана
+     */
     public void setClanName(String clanName, String newClanName){
         try (PreparedStatement preparedStatementClan = connection.prepareStatement("UPDATE clans SET clan_name = ? WHERE id = ?");
              PreparedStatement preparedStatementPlayer = connection.prepareStatement("UPDATE players SET clan_name = ? WHERE clan_id = ?")) {
@@ -156,8 +203,9 @@ public class ClanRepository {
             preparedStatementPlayer.setInt(2, clanId);
             preparedStatementPlayer.executeUpdate();
 
+            //Удаляет старые записи с старым именем клана и создаёт новые
             ArrayList<Player> players2 = SystemClans.getPlayersInClan().get(clanName);
-            HashMap<Player, String> isSameClan = SystemClans.getIsSameClan();
+            HashMap<Player, String> isSameClan = SystemClans.getClanNameByPlayer();
 
             for (Player player : players2){
                 isSameClan.remove(player);
@@ -175,6 +223,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для получения уровня клана по его названию.
+     *
+     * @param clanName название клана
+     * @return уровень клана
+     */
     public int getClanLevel(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT level FROM clans WHERE clan_name = ?")) {
             preparedStatement.setString(1, clanName);
@@ -192,6 +246,11 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для установки уровня клана.
+     *
+     * @param clanName название клана
+     */
     public void setClanLevel(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET level = ? WHERE id = ?")) {
             preparedStatement.setInt(1, getClanLevel(clanName) + 1);
@@ -203,6 +262,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для получения баланса клана по его названию.
+     *
+     * @param clanName название клана
+     * @return баланс клана
+     */
     public int getClanBalance(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));
@@ -221,6 +286,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Метод для установки баланса клана.
+     *
+     * @param clanName название клана
+     * @param amount   сумма
+     */
     public void setClanBalance(String clanName, int amount){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET balance = ? WHERE id = ?")) {
             preparedStatement.setInt(1, amount);
@@ -232,6 +303,13 @@ public class ClanRepository {
         }
     }
 
+
+    /**
+     * Метод для получения количества игроков в клане.
+     *
+     * @param clanName название клана
+     * @return количество игроков
+     */
     public int getAmountPlayer(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT amount_player FROM clans WHERE clan_name = ?")) {
             preparedStatement.setString(1, clanName);
@@ -250,6 +328,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Устанавливает количество игроков для указанного клана.
+     *
+     * @param clanName Название клана
+     * @param amountPlayer Количество игроков
+     */
     public void setAmountPlayer(String clanName, int amountPlayer){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET amount_player = ? WHERE id = ?")) {
             preparedStatement.setInt(1, amountPlayer);
@@ -261,15 +345,21 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает местоположение дома клана.
+     *
+     * @param clanName Название клана
+     * @return Местоположение дома клана (объект класса Location), либо null, если дом не найден
+     */
     public Location getLocationClanHome(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT x, y, z, world_name FROM clan_houses WHERE clan_id = ?")) {
             int clanId = getClanIdByName(clanName);
             preparedStatement.setDouble(1, clanId);
 
-            double x = 0;
-            double y = 0;
-            double z = 0;
-            String worldName = null;
+            double x;
+            double y;
+            double z;
+            String worldName;
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
@@ -288,6 +378,15 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Создает местоположение дома клана.
+     *
+     * @param clanName   Название клана
+     * @param x          Координата X
+     * @param y          Координата Y
+     * @param z          Координата Z
+     * @param worldName  Название мира
+     */
     public void createLocationClanHome(String clanName, double x, double y, double z, String worldName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clan_houses (x, y, z, world_name, clan_id) VALUES (?, ?, ? ,?, ?)")) {
 
@@ -305,6 +404,16 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Обновляет местоположение дома клана.
+     * Если местоположение дома не существует, то создает новое.
+     *
+     * @param clanName   Название клана
+     * @param x          Координата X
+     * @param y          Координата Y
+     * @param z          Координата Z
+     * @param worldName  Название мира
+     */
     public void updateLocationClanHome(String clanName, double x, double y, double z, String worldName){
         if (getLocationClanHome(clanName) == null){
             createLocationClanHome(clanName, x, y, z, worldName);
@@ -326,6 +435,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает приветственное сообщение для указанного клана.
+     *
+     * @param clanName Название клана
+     * @return Приветственное сообщение, либо null, если сообщение не найдено
+     */
     public String getWelcomeMessage(String clanName) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT welcome_massage FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));
@@ -342,6 +457,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Устанавливает приветственное сообщение для указанного клана.
+     *
+     * @param clanName       Название клана
+     * @param welcomeMessage Приветственное сообщение
+     */
     public void setWelcomeMessage(String clanName, String welcomeMessage){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET welcome_massage = ? WHERE id = ?")) {
 
@@ -356,6 +477,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает статус PvP для указанного клана.
+     *
+     * @param clanName Название клана
+     * @return true, если PvP включен, иначе false
+     */
     public boolean getStatusPvp(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pvp FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));
@@ -372,12 +499,19 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Устанавливает статус PvP для указанного клана.
+     *
+     * @param clanName    Название клана
+     * @param statusPvp   Статус PvP (true - включен, false - выключен)
+     */
     public void setStatusPvp(String clanName, boolean statusPvp){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET pvp = ? WHERE id = ?")) {
             preparedStatement.setBoolean(1, statusPvp);
             preparedStatement.setInt(2, getClanIdByName(clanName));
             preparedStatement.executeUpdate();
 
+            // Перезаписывает статус пвп в мапе
             SystemClans.getStatusPvp().remove(clanName);
             SystemClans.getStatusPvp().put(clanName, statusPvp);
         } catch (SQLException e) {
@@ -385,6 +519,9 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Добавляет статус PvP в мапу.
+     */
     public void addStatusPvpInMap(){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT pvp, clan_name FROM clans")) {
             HashMap<String, Boolean> statusPvp = SystemClans.getStatusPvp();
@@ -399,6 +536,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает количество убийств для указанного клана.
+     *
+     * @param clanName Название клана
+     * @return Количество убийств
+     */
     public int getAmountKillings(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT killings FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));
@@ -416,6 +559,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Увеличивает количество убийств для указанного клана на 1.
+     * При достижении определенного количества убийств также увеличивает репутацию клана.
+     *
+     * @param clanName Название клана
+     */
     public void addAmountKillings(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET killings = ? WHERE id = ?")) {
 
@@ -432,6 +581,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает репутацию для указанного клана.
+     *
+     * @param clanName Название клана
+     * @return Репутация клана
+     */
     public int getReputation(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT reputation FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));
@@ -449,6 +604,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Устанавливает репутацию для указанного клана.
+     *
+     * @param clanName   Название клана
+     * @param reputation Репутация клана
+     */
     public void setReputation(String clanName, int reputation){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE clans SET reputation = ? WHERE id = ?")) {
             preparedStatement.setInt(1, reputation);
@@ -460,6 +621,12 @@ public class ClanRepository {
         }
     }
 
+    /**
+     * Получает дату создания указанного клана.
+     *
+     * @param clanName Название клана
+     * @return Дата создания клана
+     */
     public String getDateCreate(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT date_create FROM clans WHERE id = ?")) {
             preparedStatement.setInt(1, getClanIdByName(clanName));

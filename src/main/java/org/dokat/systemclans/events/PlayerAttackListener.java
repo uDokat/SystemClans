@@ -6,6 +6,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.dokat.systemclans.SystemClans;
 
+/**
+ * Обрабатывает событие атаки игрока по другому игроку.
+ */
 public class PlayerAttackListener implements Listener {
 
     @EventHandler
@@ -14,7 +17,9 @@ public class PlayerAttackListener implements Listener {
             Player attackedPlayer = (Player) event.getEntity();
             Player attackingPlayer = (Player) event.getDamager();
 
+            // Проверяет, являются ли игроки членами одного клана
             if (isClanMember(attackedPlayer, attackingPlayer)) {
+                // Проверяет, разрешен ли PvP в клане атакующего игрока
                 if (!isClanPvPEnabled(attackingPlayer)) {
                     event.setCancelled(true);
                 }
@@ -22,20 +27,33 @@ public class PlayerAttackListener implements Listener {
         }
     }
 
+    /**
+     * Проверяет, являются ли игроки членами одного клана.
+     *
+     * @param attacked   атакуемый игрок
+     * @param attacking  атакующий игрок
+     * @return true, если игроки члены одного клана, иначе false
+     */
     public boolean isClanMember(Player attacked, Player attacking){
         String attackedClanName = "";
-        if (SystemClans.getIsSameClan().get(attacked) != null){
-            attackedClanName = SystemClans.getIsSameClan().get(attacked);
+        if (SystemClans.getClanNameByPlayer().get(attacked) != null){
+            attackedClanName = SystemClans.getClanNameByPlayer().get(attacked);
         }
         String attackingClanName = "";
-        if (SystemClans.getIsSameClan().get(attacking) != null){
-            attackingClanName = SystemClans.getIsSameClan().get(attacking);
+        if (SystemClans.getClanNameByPlayer().get(attacking) != null){
+            attackingClanName = SystemClans.getClanNameByPlayer().get(attacking);
         }
 
         return attackedClanName.equalsIgnoreCase(attackingClanName);
     }
 
+    /**
+     * Проверяет, разрешен ли PvP в клане игрока.
+     *
+     * @param attacked  атакуемый игрок
+     * @return true, если PvP разрешен, иначе false
+     */
     private boolean isClanPvPEnabled(Player attacked){
-        return SystemClans.getStatusPvp().get(SystemClans.getIsSameClan().get(attacked));
+        return SystemClans.getStatusPvp().get(SystemClans.getClanNameByPlayer().get(attacked));
     }
 }

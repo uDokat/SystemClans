@@ -13,6 +13,9 @@ import java.sql.Connection;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Класс ClanInviteManager управляет отправкой и принятием приглашений в клан.
+ */
 public class ClanInviteManager implements Utility {
     private HashMap<UUID, BukkitRunnable> inviteTasks;
     private HashMap<UUID, UUID> pendingInvites;
@@ -27,11 +30,21 @@ public class ClanInviteManager implements Utility {
     private final String youDontHaveInvitations = config.getMessages("you_dont_have_invitations");
     private final String playerAdded = config.getMessages("player_added");
 
+    /**
+     * Конструктор класса ClanInviteManager.
+     * Инициализирует коллекции для хранения задач ожидания и ожидающих приглашений.
+     */
     public ClanInviteManager() {
         this.inviteTasks = new HashMap<>();
         this.pendingInvites = new HashMap<>();
     }
 
+    /**
+     * Отправляет приглашение в клан от отправителя к целевому игроку.
+     *
+     * @param sender       отправитель приглашения
+     * @param targetPlayer целевой игрок, которому отправляется приглашение
+     */
     public void sendInvite(Player sender, Player targetPlayer) {
         UUID senderId = sender.getUniqueId();
         UUID targetId = targetPlayer.getUniqueId();

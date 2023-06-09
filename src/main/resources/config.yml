@@ -107,6 +107,7 @@ clan_settings:
   max_balance_level_two: 1050
   max_balance_level_three: 1100
   max_amount_players: 100
+  max_clan_level: 3
 
 # Цена /rename
   price_rename: 100

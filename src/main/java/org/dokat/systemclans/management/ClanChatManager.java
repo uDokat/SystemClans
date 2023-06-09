@@ -7,10 +7,20 @@ import org.dokat.systemclans.utils.Utility;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Класс ClanChatManager обрабатывает отправку сообщений в чате клана.
+ */
 public class ClanChatManager implements Utility {
 
     private final HashMap<String, ArrayList<Player>> playerInClan = SystemClans.getPlayersInClan();
 
+    /**
+     * Отправляет сообщение в чате клана.
+     *
+     * @param clanName имя клана
+     * @param sender   игрок, отправляющий сообщение
+     * @param message  текст сообщения
+     */
     public void sendClanChatMessage(String clanName, Player sender,  String message){
         if (playerInClan.get(clanName) != null){
             ArrayList<Player> players = playerInClan.get(clanName);

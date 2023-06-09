@@ -4,7 +4,9 @@ import org.bukkit.entity.Player;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.utils.Utility;
 
-
+/**
+ * Класс, отвечающий за логику клана.
+ */
 public class ClanLogic implements Utility {
 
     private final ConfigManager config = new ConfigManager();
@@ -12,9 +14,7 @@ public class ClanLogic implements Utility {
     private final int balanceToLevelUpTwo = config.getClanSettings("balance_to_level_up_two");
     private final int balanceToLevelUpThree = config.getClanSettings("balance_to_level_up_three");
 
-    private final int maxBalanceLevelOne = config.getClanSettings("max_balance_level_one");
-    private final int maxBalanceLevelTwo = config.getClanSettings("max_balance_level_two");
-    private final int maxBalanceLevelThree = config.getClanSettings("max_balance_level_three");
+    private final int maxClanLevel = config.getClanSettings("max_clan_level");
 
     private final String upLevelFailed = config.getMessages("clan_up_level_failed");
     private final String maxLevel = config.getMessages("clan_max_level");
@@ -24,17 +24,29 @@ public class ClanLogic implements Utility {
     private final ClanRepository clanRepository;
     private final Player player;
 
+    /**
+     * Конструктор класса ClanLogic.
+     *
+     * @param clanName       имя клана
+     * @param player         игрок
+     * @param clanRepository репозиторий клана
+     */
     public ClanLogic(String clanName, Player player, ClanRepository clanRepository){
         this.player = player;
         this.clanName = clanName;
         this.clanRepository = clanRepository;
     }
 
+    /**
+     * Метод для повышения уровня клана.
+     * Проверяет текущий уровень клана и доступный баланс.
+     * Если условия выполнены, увеличивает уровень клана и обновляет баланс.
+     */
     public void levelUp(){
         int level = clanRepository.getClanLevel(clanName);
         int balance = clanRepository.getClanBalance(clanName);
 
-        if (level < 3){
+        if (level < maxClanLevel){
             if (level == 0){
                 if (balance >= balanceToLevelUpOne){
                     clanRepository.setClanLevel(clanName);
@@ -69,31 +81,5 @@ public class ClanLogic implements Utility {
         }else {
             player.sendMessage(color(maxLevel));
         }
-    }
-
-    public boolean isMaxBalance(){
-        int level = clanRepository.getClanLevel(clanName);
-        int balance = clanRepository.getClanBalance(clanName);
-
-
-        if (level == 0){
-            if (balance == maxBalanceLevelOne){
-                return true;
-            }
-        }
-
-        if (level == 1){
-            if (balance == maxBalanceLevelTwo){
-                return true;
-            }
-        }
-
-        if (level == 2){
-            if (balance == maxBalanceLevelThree){
-                return true;
-            }
-        }
-
-        return false;
     }
 }
