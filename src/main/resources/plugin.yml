@@ -3,9 +3,9 @@ version: '${project.version}'
 main: org.dokat.systemclans.SystemClans
 api-version: 1.16
 authors: [ Dokat ]
-depends: [Vault, EssentialsX, CombatLib]
+depends: [Vault, EssentialsX, CombatLib, HikariCP]
 commands:
-  t:
+  test:
   accept:
   clanchat:
     aliases: [cc]

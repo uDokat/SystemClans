@@ -27,7 +27,6 @@ public class ClanSetHomeSubCommand implements SubCommand, Utility {
         Location playerLocation = player.getLocation();
 
         Connection connection = SystemClans.getConnection();
-
         ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 

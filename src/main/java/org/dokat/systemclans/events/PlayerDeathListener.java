@@ -35,7 +35,7 @@ public class PlayerDeathListener implements Listener {
             String killerName = killer.getName();
 
             // Увеличивает количество убийств для клана убийцы
-            clanRepository.addAmountKillings(clanRepository.getClanName(killerName));
+            clanRepository.addAmountkills(clanRepository.getClanName(killerName));
             // Увеличивает количество убийств для игрока-убийцы
             playerRepository.addAmountKills(killerName);
         }

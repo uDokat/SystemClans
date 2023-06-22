@@ -1,5 +1,7 @@
 package org.dokat.systemclans.management;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,6 +12,7 @@ import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import org.dokat.systemclans.utils.Utility;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -99,6 +102,7 @@ public class ClanInviteManager implements Utility {
             String targetName = player.getName();
 
             // Сохранение данных в базе данных
+
             Connection connection = SystemClans.getConnection();
             ClanRepository clanRepository = new ClanRepository(connection);
             PlayerRepository playerRepository = new PlayerRepository(connection);

@@ -7,7 +7,6 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Репозиторий для работы с данными игроков.
@@ -34,6 +33,7 @@ public class PlayerRepository {
      */
     public void savePlayer(Player player, String clanName, int group){
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, date_add, clan_id) VALUES (?, ?, ?, ?, ?)")) {
+
             ClanRepository repository = new ClanRepository(connection);
             int clanID = repository.getClanIdByName(clanName);
 
@@ -117,7 +117,7 @@ public class PlayerRepository {
     public void setPlayerGroup(String userName, int group){
         try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET `group` = ? WHERE user_name = ? AND clan_id = ?")) {
 
-            ClanRepository repository = new ClanRepository(connection);
+            ClanRepository repository =  new ClanRepository(connection);
             int claId =  repository.getClanIdByName(repository.getClanName(userName));
 
             preparedStatement.setInt(1, group);
@@ -136,11 +136,11 @@ public class PlayerRepository {
      * @param clanName Название клана
      * @return Список имен игроков
      */
-    public List<String> getAllPlayersForClanName(String clanName){
+    public ArrayList<String> getAllPlayersForClanName(String clanName){
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT user_name FROM players WHERE clan_name = ?")) {
             preparedStatement.setString(1, clanName);
 
-            List<String> list = new ArrayList<>();
+            ArrayList<String> list = new ArrayList<>();
 
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
@@ -176,12 +176,12 @@ public class PlayerRepository {
      * @return Количество убийств игрока
      */
     public int getAmountKills(String userName){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT killings FROM players WHERE user_name = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT kills FROM players WHERE user_name = ?")) {
             preparedStatement.setString(1, userName);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()){
-                return resultSet.getInt("killings");
+                return resultSet.getInt("kills");
             }else {
                 resultSet.close();
                 return 0;
@@ -193,7 +193,7 @@ public class PlayerRepository {
     }
 
     public void addAmountKills(String userName){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET killings = ? WHERE user_name = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET kills = ? WHERE user_name = ?")) {
             preparedStatement.setInt(1, getAmountKills(userName) + 1);
             preparedStatement.setString(2, userName);
             preparedStatement.executeUpdate();
@@ -219,6 +219,31 @@ public class PlayerRepository {
                 return "";
             }
 
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getBalance(String userName){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT balance FROM players WHERE user_name = ?")) {
+            preparedStatement.setString(1, userName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                return resultSet.getInt("balance");
+            }
+
+            return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void addBalance(String userName, int amount){
+        try (PreparedStatement preparedStatement = connection.prepareStatement("UPDATE players SET balance = ? WHERE user_name = ?")) {
+            preparedStatement.setInt(1, getBalance(userName) + amount);
+            preparedStatement.setString(2, userName);
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

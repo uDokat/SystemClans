@@ -5,13 +5,17 @@ import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import org.dokat.systemclans.management.PlayerBalanceManager;
 import org.dokat.systemclans.utils.Utility;
+
+import java.sql.Connection;
 
 public class ClanPaySubCommand implements SubCommand, Utility {
 
     private final ConfigManager config = new ConfigManager();
 
+    private final int maxBalanceLevelZero = config.getClanSettings("max_balance_level_zero");
     private final int maxBalanceLevelOne = config.getClanSettings("max_balance_level_one");
     private final int maxBalanceLevelTwo = config.getClanSettings("max_balance_level_two");
     private final int maxBalanceLevelThree = config.getClanSettings("max_balance_level_three");
@@ -26,11 +30,14 @@ public class ClanPaySubCommand implements SubCommand, Utility {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
+        String userName = player.getName();
 
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection());
-        String clanName = clanRepository.getClanName(player.getName());
-
+        Connection connection = SystemClans.getConnection();
+        ClanRepository clanRepository = new ClanRepository(connection);
+        PlayerRepository playerRepository = new PlayerRepository(connection);
         PlayerBalanceManager balanceManager = new PlayerBalanceManager();
+
+        String clanName = SystemClans.getClanNameByPlayer().get(player);
 
         if (clanName != null){
             if (args.length == 1){
@@ -41,6 +48,7 @@ public class ClanPaySubCommand implements SubCommand, Utility {
                         if (amount > 0){
                             clanRepository.setClanBalance(clanName, clanRepository.getClanBalance(clanName)+amount);
                             balanceManager.removeBalance(player, -amount);
+                            playerRepository.addBalance(userName, amount);
                             sendMessageEveryone(clanName,  clanPay.replace("{userName}", player.getName()).replace("{amount}", String.valueOf(amount)), null);
                         }else {
                             player.sendMessage(color(zeroCannotOutput));
@@ -57,7 +65,6 @@ public class ClanPaySubCommand implements SubCommand, Utility {
         }else {
             player.sendMessage(color(notClan));
         }
-
         return true;
     }
 
@@ -77,6 +84,6 @@ public class ClanPaySubCommand implements SubCommand, Utility {
             return maxBalanceLevelThree;
         }
 
-        return 0;
+        return maxBalanceLevelZero;
     }
 }

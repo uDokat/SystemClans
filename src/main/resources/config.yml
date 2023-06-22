@@ -91,6 +91,8 @@ color_settings:
     clan_balance_color: "&6"
     player_group_color: "&c"
     navigation_color: "&e"
+    online_color: "&2"
+    offline_color: "&c"
 
 
 clan_settings:
@@ -103,6 +105,7 @@ clan_settings:
   balance_to_level_up_three: 200
 
 # Максимальный баланс для каждого уровня клана
+  max_balance_level_zero: 500
   max_balance_level_one: 1000
   max_balance_level_two: 1050
   max_balance_level_three: 1100

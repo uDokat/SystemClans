@@ -2,11 +2,8 @@ package org.dokat.systemclans;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.dokat.systemclans.commands.AcceptCommand;
-import org.dokat.systemclans.commands.ClanChat;
-import org.dokat.systemclans.commands.ClanCommand;
-import org.dokat.systemclans.dbmanagement.connections.DatabaseConnection;
-import org.dokat.systemclans.dbmanagement.connections.JdbcDatabaseConnection;
+import org.dokat.systemclans.commands.*;
+import org.dokat.systemclans.dbmanagement.connections.HConfig;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.events.*;
 import org.dokat.systemclans.management.ClanInviteManager;
@@ -30,42 +27,37 @@ public final class SystemClans extends JavaPlugin {
     // Возвращает клан нейм игрока
     private static HashMap<Player, String> clanNameByPlayer;
 
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        instance = this;
 
         // Создание соединения с базой данных
-        DatabaseConnection databaseConnection = new JdbcDatabaseConnection("jdbc:mysql://localhost:3306/clans", "root", "root");
-        connection = databaseConnection.getConnection();
+        HConfig config = new HConfig("jdbc:mysql://mysql-131559-0.cloudclusters.net:15421/clans", "admin", "x9dPcnjR");
+        connection = config.getConnection();
 
-        try {
-            // Создание таблиц кланов, игроков и домов кланов, если они не существуют
-            createNewClansTable();
-            createNewPlayersTable();
-            createNewClanHomeTable();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        createTables();
 
-        instance = this;
         playersInClan = new HashMap<>();
         statusPvp = new HashMap<>();
         clanNameByPlayer = new HashMap<>();
         clanInviteManager = new ClanInviteManager();
 
         //Заполняет хэшмапу пвп статусов по клан нейму
-        ClanRepository repository = new ClanRepository(connection);
-        repository.addStatusPvpInMap();
+        new ClanRepository(connection).addStatusPvpInMap();
 
         // Регистрация команд, слушателей событий и менеджеров
         new ClanCommand();
         new ClanChat();
         new AcceptCommand();
 
+        //Сделать автоматическую регистрацию
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
-        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+//        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+        new InventoryClickListener();
         getServer().getPluginManager().registerEvents(new PlayerSwapListener(), this);
     }
 
@@ -77,6 +69,17 @@ public final class SystemClans extends JavaPlugin {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public void createTables(){
+        try {
+            // Создание таблиц кланов, игроков и домов кланов, если они не существуют
+            createNewClansTable();
+            createNewPlayersTable();
+            createNewClanHomeTable();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,7 +99,7 @@ public final class SystemClans extends JavaPlugin {
                 "amount_player INT," +
                 "welcome_massage VARCHAR(255)," +
                 "pvp TINYINT," +
-                "killings INT DEFAULT 0," +
+                "kills INT DEFAULT 0," +
                 "reputation INT DEFAULT 0," +
                 "date_create VARCHAR(50)" +
                 ")");
@@ -115,9 +118,10 @@ public final class SystemClans extends JavaPlugin {
                 "user_name VARCHAR(225)," +
                 "clan_name VARCHAR(255)," +
                 "`group` INT," +
-                "killings INT DEFAULT 0," +
-                "clan_id INT," +
+                "kills INT DEFAULT 0," +
+                "balance INT DEFAULT 0," +
                 "date_add VARCHAR(50)," +
+                "clan_id INT," +
                 "FOREIGN KEY (clan_id) REFERENCES clans(id)" +
                 ")");
     }

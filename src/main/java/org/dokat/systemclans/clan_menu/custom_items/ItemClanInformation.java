@@ -29,7 +29,7 @@ public class ItemClanInformation implements CustomItem {
         lore.add(color(mColor + "Уровень: " + levelColor + clanRepository.getClanLevel(clanName)));
         lore.add(color(mColor + "Репутация: " + repColor + clanRepository.getReputation(clanName)));
         lore.add(color(mColor + "Игроков в клане: " + playerColor + clanRepository.getAmountPlayer(clanName)));
-        lore.add(color(mColor + "Убийств: " + killsColor + clanRepository.getAmountKillings(clanName)));
+        lore.add(color(mColor + "Убийств: " + killsColor + clanRepository.getAmountkills(clanName)));
         lore.add(color(mColor + "Казна: " + balanceColor + clanRepository.getClanBalance(clanName)));
         lore.add(color(mColor + "Создан: " + timeColor + clanRepository.getDateCreate(clanName)));
 

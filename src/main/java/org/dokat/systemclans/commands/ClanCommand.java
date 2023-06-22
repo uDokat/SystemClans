@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
 import org.dokat.systemclans.clan_menu.ClanMenu;
+import org.dokat.systemclans.clan_menu.PageLogic;
+import org.dokat.systemclans.clan_menu.PageManager;
 import org.dokat.systemclans.commands.subcommands.*;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
@@ -52,15 +54,18 @@ public class ClanCommand implements CommandExecutor {
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
+        
         ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
         ClanMenu clanMenu = new ClanMenu(clanRepository, playerRepository, player);
+        PageLogic pageLogic = new PageLogic(clanMenu.getInventory(), clanRepository.getClanName(userName));
+        PageManager pageManager = new PageManager(pageLogic);
         ConfigManager config = new ConfigManager();
 
         if (args.length == 0){
             if (clanRepository.getClanName(userName) != null){
-                player.openInventory(clanMenu.getInventory());
+                player.openInventory(pageManager.getInventories().get(0));
                 return true;
             }else {
                 player.sendMessage(color(config.getMessages("not_clan")));

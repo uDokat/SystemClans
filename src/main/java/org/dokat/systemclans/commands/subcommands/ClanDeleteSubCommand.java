@@ -22,11 +22,9 @@ public class ClanDeleteSubCommand implements SubCommand, Utility {
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
-
         String userName = player.getName();
 
         Connection connection = SystemClans.getConnection();
-
         ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 

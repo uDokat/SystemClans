@@ -27,7 +27,6 @@ public class ClanWelcomeSubCommand implements SubCommand, Utility {
         String message = String.join(" ", args);
 
         Connection connection = SystemClans.getConnection();
-
         ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 

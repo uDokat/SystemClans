@@ -39,6 +39,7 @@ public class ClanAddSubCommand implements SubCommand, Utility {
 
         Connection connection = SystemClans.getConnection();
 
+        
         ClanRepository clanRepository = new ClanRepository(connection);
         PlayerRepository playerRepository = new PlayerRepository(connection);
 
