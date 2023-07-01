@@ -1,4 +1,4 @@
-package org.dokat.systemclans.dbmanagement.connections;
+package org.dokat.systemclans.dbmanagement.connection;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

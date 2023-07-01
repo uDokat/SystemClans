@@ -3,8 +3,12 @@ package org.dokat.systemclans;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.dokat.systemclans.commands.*;
-import org.dokat.systemclans.dbmanagement.connections.HConfig;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
+import org.dokat.systemclans.dbmanagement.connection.HConfig;
+import org.dokat.systemclans.dbmanagement.controllers.ClanController;
+import org.dokat.systemclans.dbmanagement.controllers.ClanHomeController;
+import org.dokat.systemclans.dbmanagement.controllers.DataController;
+import org.dokat.systemclans.dbmanagement.controllers.PlayerController;
+import org.dokat.systemclans.dbmanagement.tasks.SaveDataTask;
 import org.dokat.systemclans.events.*;
 import org.dokat.systemclans.management.ClanInviteManager;
 
@@ -34,7 +38,8 @@ public final class SystemClans extends JavaPlugin {
         instance = this;
 
         // Создание соединения с базой данных
-        HConfig config = new HConfig("jdbc:mysql://mysql-131559-0.cloudclusters.net:15421/clans", "admin", "x9dPcnjR");
+        HConfig config = new HConfig("jdbc:mysql://mysql-133616-0.cloudclusters.net:16340/clans", "admin", "ixuqv1Cr");
+//        HConfig config = new HConfig("jdbc:mysql://localhost:3306/clans", "root", "root");
         connection = config.getConnection();
 
         createTables();
@@ -44,21 +49,25 @@ public final class SystemClans extends JavaPlugin {
         clanNameByPlayer = new HashMap<>();
         clanInviteManager = new ClanInviteManager();
 
-        //Заполняет хэшмапу пвп статусов по клан нейму
-        new ClanRepository(connection).addStatusPvpInMap();
+        new ClanController(connection);
+        new PlayerController(connection);
+        new ClanHomeController(connection);
+
+        new SaveDataTask();
 
         // Регистрация команд, слушателей событий и менеджеров
         new ClanCommand();
         new ClanChat();
         new AcceptCommand();
+        new SaveDataCommand();
 
         //Сделать автоматическую регистрацию
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
-//        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
-        new InventoryClickListener();
-        getServer().getPluginManager().registerEvents(new PlayerSwapListener(), this);
+//        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+//        getServer().getPluginManager().registerEvents(new PlayerAttackListener(), this);
+//        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+////        getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+//        new InventoryClickListener();
+//        getServer().getPluginManager().registerEvents(new PlayerSwapListener(), this);
     }
 
     @Override
@@ -97,8 +106,8 @@ public final class SystemClans extends JavaPlugin {
                 "level INT," +
                 "balance INT," +
                 "amount_player INT," +
-                "welcome_massage VARCHAR(255)," +
-                "pvp TINYINT," +
+                "welcome_message VARCHAR(255)," +
+                "pvp_status TINYINT," +
                 "kills INT DEFAULT 0," +
                 "reputation INT DEFAULT 0," +
                 "date_create VARCHAR(50)" +

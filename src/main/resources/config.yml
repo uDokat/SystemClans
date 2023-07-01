@@ -33,7 +33,7 @@ messages:
   clan_renamed: "&aНазвание клана изменено на &6&l{newClanName}"
   clan_name_failed: "&cНазвание клана уже уществует или указано неправильно"
   clan_home_not_found: "&cУ клана не создан клановый хом"
-  clan_home_created: "&aХом клана успешно создан"
+  clan_home_created: "&aХом клана обновлен"
   clan_leave: "&aИгрок &c{userName} &aпокинул клан"
   clan_leave_failed: "&cЛидер клана не может покинуть клан"
   clan_up_level_failed: "&cВ казне недостаточно средсв"
@@ -53,6 +53,7 @@ messages:
   group_cannot_be_raised: "&cГруппа игрока уже повышена до максимального уровня"
   group_reduced_to_minimum_level: "&cГруппа игрока уже понижена до минимального уровня"
 
+  no_money: "&cНедостаточно средств"
   not_enough_money: "&cНедостаточно средств клана"
 
   welcome_message_created: "&aПриветственное сообщение было обновлено"
@@ -114,6 +115,7 @@ clan_settings:
 
 # Цена /rename
   price_rename: 100
+  price_create_clan: 0
 
 # Права на использование команды.
 # 0 Игрок

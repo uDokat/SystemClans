@@ -5,6 +5,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.controllers.ClanController;
+import org.dokat.systemclans.dbmanagement.controllers.ClanHomeController;
+import org.dokat.systemclans.dbmanagement.controllers.PlayerController;
+import org.dokat.systemclans.dbmanagement.data_models.Clan;
+import org.dokat.systemclans.dbmanagement.data_models.ClanHome;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import org.dokat.systemclans.utils.Utility;
@@ -26,17 +31,13 @@ public class ClanSetHomeSubCommand implements SubCommand, Utility {
         String userName = player.getName();
         Location playerLocation = player.getLocation();
 
-        Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection);
-        PlayerRepository playerRepository = new PlayerRepository(connection);
+        org.dokat.systemclans.dbmanagement.data_models.Player dataPlayer = PlayerController.getPlayer(userName);
 
-        String clanName = clanRepository.getClanName(userName);
-
-        if (clanName != null){
-            if (playerRepository.getPlayerGroup(userName) >= permissionForSethome){
+        if (PlayerController.isHaveClan(userName)){
+            if (dataPlayer.getGroup() >= permissionForSethome){
                 if (args.length == 0){
-                    clanRepository.updateLocationClanHome(clanName, playerLocation.getX(), playerLocation.getY(), playerLocation.getZ(), player.getWorld().getName());
-                    player.sendMessage(color(clanHomeCreated));
+                    ClanHomeController.save(new ClanHome(playerLocation.getX(), playerLocation.getY(), playerLocation.getZ(), player.getWorld().getName()), ClanController.getClan(dataPlayer.getClanName()).getId());
+                    sendMessageEveryone(dataPlayer.getClanName(), clanHomeCreated, null);
                 }else {
                     player.sendMessage(color(commandFailed));
                 }

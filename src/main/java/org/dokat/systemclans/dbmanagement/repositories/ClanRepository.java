@@ -44,40 +44,35 @@ public class ClanRepository {
      * @param player   игрок, создающий клан
      */
     public void createClan(String clanName, Player player){
-        BukkitTask task = new BukkitRunnable(){
-            @Override
-            public void run() {
-                try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player, date_create) VALUES (?, ?, ?, ?, ?)")) {
-                    preparedStatement.setString(1, clanName);
-                    preparedStatement.setInt(2, 0);
-                    preparedStatement.setInt(3, 0);
-                    preparedStatement.setInt(4, 0);
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            try(PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO clans (clan_name, level, balance, amount_player, date_create) VALUES (?, ?, ?, ?, ?)")) {
+                preparedStatement.setString(1, clanName);
+                preparedStatement.setInt(2, 0);
+                preparedStatement.setInt(3, 0);
+                preparedStatement.setInt(4, 0);
 
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
-                    LocalDateTime localDateTime = LocalDateTime.now();
-                    String time = localDateTime.format(formatter);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+                LocalDateTime localDateTime = LocalDateTime.now();
+                String time = localDateTime.format(formatter);
 
-                    preparedStatement.setString(5, time);
-                    preparedStatement.executeUpdate();
+                preparedStatement.setString(5, time);
+                preparedStatement.executeUpdate();
 
-                    //Создаёт новую запись клана в хэшмапе
-                    SystemClans.setPlayersInClan(clanName, new ArrayList<>());
+                //Создаёт новую запись клана в хэшмапе
+                SystemClans.setPlayersInClan(clanName, new ArrayList<>());
 
-                    //Сохраняет игрока в таблицу players
-                    PlayerRepository repository = new PlayerRepository(connection);
-                    repository.savePlayer(player, clanName, 2);
+                //Сохраняет игрока в таблицу players
+                PlayerRepository repository = new PlayerRepository(connection);
+                repository.savePlayer(player, clanName, 2);
 
-                    //Создаёт запись пвп статуса в хэшмапе
-                    SystemClans.getStatusPvp().put(clanName, true);
-                    //Создаёт запись к какому клану относится игрок
-                    SystemClans.getClanNameByPlayer().put(player, clanName);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+                //Создаёт запись пвп статуса в хэшмапе
+                SystemClans.getStatusPvp().put(clanName, true);
+                //Создаёт запись к какому клану относится игрок
+                SystemClans.getClanNameByPlayer().put(player, clanName);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }.runTaskAsynchronously(instance);
-
-        task.cancel();
+        });
     }
 
     /**
@@ -86,46 +81,39 @@ public class ClanRepository {
      * @param userName имя игрока, выполняющего удаление клана
      */
     public void deleteClan(String userName){
-        BukkitTask task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                try (PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE id = ?");
-                     PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_id = ?")) {
+        try (PreparedStatement preparedStatementClan = connection.prepareStatement("DELETE FROM clans WHERE id = ?");
+             PreparedStatement preparedStatementPlayer = connection.prepareStatement("DELETE FROM players WHERE clan_id = ?")) {
 
-                    String clanName = getClanName(userName);
-                    //Получаем id клана
-                    int clanId = getClanIdByName(clanName);
+            String clanName = getClanName(userName);
+            //Получаем id клана
+            int clanId = getClanIdByName(clanName);
 
-                    //Если у клана есть клановый хом, то удаляет запись о клан хоме
-                    if (getLocationClanHome(clanName) != null){
-                        PreparedStatement preparedStatementHome = connection.prepareStatement("DELETE FROM clan_houses WHERE clan_id = ?");
-                        preparedStatementHome.setInt(1, clanId);
-                        preparedStatementHome.executeUpdate();
-                    }
-
-                    preparedStatementPlayer.setInt(1, clanId);
-                    preparedStatementPlayer.executeUpdate();
-
-                    preparedStatementClan.setInt(1, clanId);
-                    preparedStatementClan.executeUpdate();
-
-                    //Удаляет всех игроков их хэшмапы и саму запись в ней
-                    ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
-                    for (Player player : players){
-                        SystemClans.getClanNameByPlayer().remove(player);
-                    }
-
-                    SystemClans.getPlayersInClan().remove(clanName);
-                    //Удаляет запись о статусе пвп клана
-                    SystemClans.getStatusPvp().remove(clanName);
-
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
+            //Если у клана есть клановый хом, то удаляет запись о клан хоме
+            if (getLocationClanHome(clanName) != null){
+                PreparedStatement preparedStatementHome = connection.prepareStatement("DELETE FROM clan_houses WHERE clan_id = ?");
+                preparedStatementHome.setInt(1, clanId);
+                preparedStatementHome.executeUpdate();
             }
-        }.runTaskAsynchronously(instance);
 
-        task.cancel();
+            preparedStatementPlayer.setInt(1, clanId);
+            preparedStatementPlayer.executeUpdate();
+
+            preparedStatementClan.setInt(1, clanId);
+            preparedStatementClan.executeUpdate();
+
+            //Удаляет всех игроков их хэшмапы и саму запись в ней
+            ArrayList<Player> players = SystemClans.getPlayersInClan().get(clanName);
+            for (Player player : players){
+                SystemClans.getClanNameByPlayer().remove(player);
+            }
+
+            SystemClans.getPlayersInClan().remove(clanName);
+            //Удаляет запись о статусе пвп клана
+            SystemClans.getStatusPvp().remove(clanName);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -137,24 +125,20 @@ public class ClanRepository {
     public boolean isClanNameNotFound(String clanName){
         final boolean[] isFound = {false};
 
-        BukkitTask task = new BukkitRunnable() {
-            @Override
-            public void run() {
-                try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM clans WHERE clan_name = ?")) {
-                    statement.setString(1, clanName);
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT COUNT(*) FROM clans WHERE clan_name = ?")) {
+                statement.setString(1, clanName);
 
-                    ResultSet resultSet = statement.executeQuery();
-                    if (resultSet.next()) {
-                        int count = resultSet.getInt(1);
-                        isFound[0] = count == 0;
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    int count = resultSet.getInt(1);
+                    isFound[0] = count == 0;
                 }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        }.runTaskAsynchronously(instance);
+        });
 
-        task.cancel();
         return isFound[0];
     }
 
@@ -165,32 +149,26 @@ public class ClanRepository {
      * @return идентификатор клана
      */
     public int getClanIdByName(String clanName){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM clans WHERE clan_name = ?")) {
-            preparedStatement.setString(1, clanName);
+        final int[] clanId = {-1};
 
-            int clanId = -1;
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM clans WHERE clan_name = ?")) {
+                preparedStatement.setString(1, clanName);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
-                clanId = resultSet.getInt("id");
+//                int clanId = -1;
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+                if (resultSet.next()){
+                    clanId[0] = resultSet.getInt("id");
+                }
+
+                resultSet.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            resultSet.close();
+        });
 
-            return clanId;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-
-//        BukkitTask task = new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//
-//                return false;
-//            }
-//        }.runTaskAsynchronously(instance);
-//
-//        task.cancel();
+        return clanId[0];
     }
 
     /**
@@ -200,22 +178,24 @@ public class ClanRepository {
      * @return название клана
      */
     public String getClanName(String userName){
-        try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT clan_name FROM players WHERE user_name = ?")) {
-            preparedStatement.setString(1, userName);
-            ResultSet resultSet = preparedStatement.executeQuery();
+        final String[] clanName = {null};
 
-            String clanName = null;
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT clan_name FROM players WHERE user_name = ?")) {
+                preparedStatement.setString(1, userName);
+                ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
-                clanName = resultSet.getString("clan_name");
+                if (resultSet.next()) {
+                    clanName[0] = resultSet.getString("clan_name");
+                }
+
+                resultSet.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+        });
 
-            resultSet.close();
-
-            return clanName;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        return clanName[0];
     }
 
     /**
@@ -256,15 +236,6 @@ public class ClanRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        BukkitTask task = new BukkitRunnable() {
-            @Override
-            public void run() {
-
-            }
-        }.runTaskAsynchronously(instance);
-
-        task.cancel();
     }
 
     /**

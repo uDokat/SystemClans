@@ -1,5 +1,6 @@
 package org.dokat.systemclans.dbmanagement.repositories;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;
 
@@ -32,32 +33,34 @@ public class PlayerRepository {
      * @param group     Группа игрока
      */
     public void savePlayer(Player player, String clanName, int group){
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, date_add, clan_id) VALUES (?, ?, ?, ?, ?)")) {
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO players (user_name, clan_name, `group`, date_add, clan_id) VALUES (?, ?, ?, ?, ?)")) {
 
-            ClanRepository repository = new ClanRepository(connection);
-            int clanID = repository.getClanIdByName(clanName);
+                ClanRepository repository = new ClanRepository(connection);
+                int clanID = repository.getClanIdByName(clanName);
 
-            //Время добавления игрока в клан
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
-            LocalDateTime localDateTime = LocalDateTime.now();
-            String time = localDateTime.format(formatter);
+                //Время добавления игрока в клан
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
+                LocalDateTime localDateTime = LocalDateTime.now();
+                String time = localDateTime.format(formatter);
 
-            preparedStatement.setString(1, player.getName());
-            preparedStatement.setString(2, clanName);
-            preparedStatement.setInt(3, group);
-            preparedStatement.setString(4, time);
-            preparedStatement.setInt(5, clanID);
-            preparedStatement.executeUpdate();
+                preparedStatement.setString(1, player.getName());
+                preparedStatement.setString(2, clanName);
+                preparedStatement.setInt(3, group);
+                preparedStatement.setString(4, time);
+                preparedStatement.setInt(5, clanID);
+                preparedStatement.executeUpdate();
 
-            // Обновляет количество игроков на +1
-            repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) + 1);
-            // Добавляет в арай лист игрока который лежит в хэш мапе
-            SystemClans.getPlayersInClan().get(clanName).add(player);
-            // Добавляет игрока клан игрока в мапу
-            SystemClans.getClanNameByPlayer().put(player, clanName);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+                // Обновляет количество игроков на +1
+                repository.setAmountPlayer(clanName, repository.getAmountPlayer(clanName) + 1);
+                // Добавляет в арай лист игрока который лежит в хэш мапе
+                SystemClans.getPlayersInClan().get(clanName).add(player);
+                // Добавляет игрока клан игрока в мапу
+                SystemClans.getClanNameByPlayer().put(player, clanName);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**

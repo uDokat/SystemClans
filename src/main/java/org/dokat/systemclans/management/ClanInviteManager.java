@@ -1,18 +1,15 @@
 package org.dokat.systemclans.management;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
-import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.dbmanagement.controllers.ClanController;
+import org.dokat.systemclans.dbmanagement.controllers.DataController;
+import org.dokat.systemclans.dbmanagement.controllers.PlayerController;
 import org.dokat.systemclans.utils.Utility;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -61,13 +58,11 @@ public class ClanInviteManager implements Utility {
             return;
         }
 
-        ClanRepository clanRepository = new ClanRepository(SystemClans.getConnection());
-
         // Отправка приглашения
         sender.sendMessage(color(invitationSentToPlayer).replace("{targetUserName}", targetName));
         targetPlayer.sendMessage(color(playerInvitesToClan)
                 .replace("{userName}", senderName)
-                .replace("{clanName}", clanRepository.getClanName(senderName)));
+                .replace("{clanName}", PlayerController.getPlayer(senderName).getClanName()));
 
         // Создание и запуск задачи ожидания
         BukkitRunnable inviteTask = new BukkitRunnable() {
@@ -103,16 +98,12 @@ public class ClanInviteManager implements Utility {
 
             // Сохранение данных в базе данных
 
-            Connection connection = SystemClans.getConnection();
-            ClanRepository clanRepository = new ClanRepository(connection);
-            PlayerRepository playerRepository = new PlayerRepository(connection);
 
-            String clanName = clanRepository.getClanName(sender.getName());
-            playerRepository.savePlayer(player, clanName, 0);
+            String clanName = PlayerController.getPlayer(sender.getName()).getClanName();
+            PlayerController.save(new org.dokat.systemclans.dbmanagement.data_models.Player(targetName, clanName));
+//            DataController.addPlayer(new org.dokat.systemclans.dbmanagement.data_models.Player(targetName, clanName));
 
             sendMessageEveryone(clanName, playerAdded.replace("{targetUserName}", targetName), targetName);
-
-
 
             // Отправка сообщения об успешном принятии приглашения
             if (sender != null) {
@@ -120,8 +111,8 @@ public class ClanInviteManager implements Utility {
             }
 
             player.sendMessage(color(joinedClan).replace("{clanName}", clanName));
-            if (clanRepository.getWelcomeMessage(clanName) != null){
-                player.sendMessage(color(clanRepository.getWelcomeMessage(clanName)
+            if (ClanController.getClan(clanName).getWelcomeMessage() != null){
+                player.sendMessage(color(ClanController.getClan(clanName).getWelcomeMessage()
                         .replace("[player]", targetName)));
             }
 

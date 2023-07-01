@@ -1,5 +1,6 @@
 package org.dokat.systemclans.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.SystemClans;
@@ -21,7 +22,9 @@ public class AcceptCommand implements CommandExecutor{
         Player player = (Player) sender;
 
         if (args.length == 0){
-            clanInviteManager.acceptInvite(player);
+            Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+                clanInviteManager.acceptInvite(player);
+            });
         }
 
         return true;

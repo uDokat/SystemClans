@@ -5,6 +5,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
+import org.dokat.systemclans.dbmanagement.controllers.DataController;
+import org.dokat.systemclans.dbmanagement.controllers.PlayerController;
 import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
 import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
 import org.dokat.systemclans.management.ClanInviteManager;
@@ -25,7 +27,7 @@ public class ClanAddSubCommand implements SubCommand, Utility {
     @Override
     public boolean execute(CommandSender sender, String[] args){
         Player player = (Player) sender;
-        Player targetPlayer = null;
+        Player targetPlayer;
 
         if (args.length == 1){
             targetPlayer = Bukkit.getPlayer(args[0]);
@@ -37,28 +39,21 @@ public class ClanAddSubCommand implements SubCommand, Utility {
         String userName = player.getName();
         String targetUserName = targetPlayer.getName();
 
-        Connection connection = SystemClans.getConnection();
-
-        
-        ClanRepository clanRepository = new ClanRepository(connection);
-        PlayerRepository playerRepository = new PlayerRepository(connection);
-
-        String clanName = clanRepository.getClanName(userName);
-        String targetClanName = clanRepository.getClanName(targetUserName);
-
-        if (clanName != null){
-            if (playerRepository.getPlayerGroup(userName) >= permissionForAdd){
-                if (targetClanName == null){
-                    clanInviteManager.sendInvite(player, targetPlayer);
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            if (PlayerController.isHaveClan(userName)){
+                if (PlayerController.getPlayer(userName).getGroup() >= permissionForAdd){
+                    if (!PlayerController.isHaveClan(targetUserName)){
+                        clanInviteManager.sendInvite(player, targetPlayer);
+                    }else {
+                        player.sendMessage(color(playerAlreadyInClan));
+                    }
                 }else {
-                    player.sendMessage(color(playerAlreadyInClan));
+                    player.sendMessage(color(lackOfRights));
                 }
             }else {
-                player.sendMessage(color(lackOfRights));
+                player.sendMessage(color(notClan));
             }
-        }else {
-            player.sendMessage(color(notClan));
-        }
+        });
 
         return true;
     }

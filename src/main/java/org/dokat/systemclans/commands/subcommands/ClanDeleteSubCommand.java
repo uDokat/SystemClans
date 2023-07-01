@@ -1,14 +1,13 @@
 package org.dokat.systemclans.commands.subcommands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.dokat.systemclans.ConfigManager;
 import org.dokat.systemclans.SystemClans;
-import org.dokat.systemclans.dbmanagement.repositories.ClanRepository;
-import org.dokat.systemclans.dbmanagement.repositories.PlayerRepository;
+import org.dokat.systemclans.dbmanagement.controllers.ClanController;
+import org.dokat.systemclans.dbmanagement.controllers.PlayerController;
 import org.dokat.systemclans.utils.Utility;
-
-import java.sql.Connection;
 
 public class ClanDeleteSubCommand implements SubCommand, Utility {
 
@@ -24,24 +23,22 @@ public class ClanDeleteSubCommand implements SubCommand, Utility {
         Player player = (Player) sender;
         String userName = player.getName();
 
-        Connection connection = SystemClans.getConnection();
-        ClanRepository clanRepository = new ClanRepository(connection);
-        PlayerRepository playerRepository = new PlayerRepository(connection);
-
-        if(clanRepository.getClanName(userName) != null){
-            if (playerRepository.getPlayerGroup(userName) >= permissionForDelete){
-                if (args.length == 0){
-                    clanRepository.deleteClan(userName);
-                    player.sendMessage(color(clanDeleted));
+        Bukkit.getScheduler().runTaskAsynchronously(SystemClans.getInstance(), () -> {
+            if(PlayerController.isHaveClan(userName)){
+                if (PlayerController.getPlayer(userName).getGroup() >= permissionForDelete){
+                    if (args.length == 0){
+                        ClanController.delete(ClanController.getClan(PlayerController.getPlayer(userName).getClanName()));
+                        player.sendMessage(color(clanDeleted));
+                    }else {
+                        player.sendMessage(color(commandFailed));
+                    }
                 }else {
-                    player.sendMessage(color(commandFailed));
+                    player.sendMessage(color(lackOfRights));
                 }
             }else {
-                player.sendMessage(color(lackOfRights));
+                player.sendMessage(color(notClan));
             }
-        }else {
-            player.sendMessage(color(notClan));
-        }
+        });
 
         return true;
     }
